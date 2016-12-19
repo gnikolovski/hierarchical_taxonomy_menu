@@ -1,0 +1,24 @@
+{% macro menu_links(menu_tree, route_tid) %}
+  {% import _self as macros %}
+  {% for item in menu_tree %}
+    {% 
+      set liClass = [
+        item.subitem ? 'menu-item menu-item--expanded' : 'menu-item',
+        route_tid == item.tid ? 'menu-item--active' : ''
+      ] 
+    %}
+    <li class="{{ liClass|join(' ') }}">
+      <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name|capitalize }}</a>
+      {% if item.subitem %}
+        <ul class="menu">
+          {{ macros.menu_links(item.subitem, route_tid) }}
+        </ul>
+      {% endif %}
+    </li>
+  {% endfor %}
+{% endmacro %}
+
+{% import _self as macros %}
+<ul class="menu">
+  {{ macros.menu_links(menu_tree, route_tid) }}
+</ul>

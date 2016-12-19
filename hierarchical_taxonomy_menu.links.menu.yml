@@ -1,0 +1,5 @@
+hierarchical_taxonomy_menu.settings:
+  title: 'Hierarchical Taxonomy Menu'
+  description: 'Configure Hierarchical Taxonomy Menu module.'
+  route_name: hierarchical_taxonomy_menu.settings
+  parent: 'system.admin_config_ui'

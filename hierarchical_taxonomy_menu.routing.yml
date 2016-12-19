@@ -1,0 +1,7 @@
+hierarchical_taxonomy_menu.settings:
+  path: '/admin/config/services/hierarchical_taxonomy_menu'
+  defaults:
+    _form: '\Drupal\hierarchical_taxonomy_menu\Form\HierarchicalTaxonomyMenuForm'
+    _title: 'Hierarchical Taxonomy Menu'
+  requirements:
+    _permission: 'administer hierarchical taxonomy menu'
