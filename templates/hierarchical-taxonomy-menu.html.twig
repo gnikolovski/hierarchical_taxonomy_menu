@@ -8,7 +8,7 @@
       ] 
     %}
     <li class="{{ liClass|join(' ') }}">
-      <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name|capitalize }}</a>
+      <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name }}</a>
       {% if item.subitem %}
         <ul class="menu">
           {{ macros.menu_links(item.subitem, route_tid) }}
