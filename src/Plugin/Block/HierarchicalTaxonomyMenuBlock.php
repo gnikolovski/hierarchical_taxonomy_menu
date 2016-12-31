@@ -3,13 +3,14 @@
 namespace Drupal\hierarchical_taxonomy_menu\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Url;
 
 /**
  * Provides a 'HierarchicalTaxonomyMenuBlock' block.
  *
  * @Block(
  *  id = "hierarchical_taxonomy_menu",
- *  admin_label = @Translation("Hierarchical Taxonomy Menu"),
+ *  admin_label = @Translation("Hierarchical taxonomy menu"),
  *  category = @Translation("Menus")
  * )
  */
@@ -21,6 +22,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase {
   public function build() {
     $config = \Drupal::config('hierarchical_taxonomy_menu.settings');
     $vocabulary = $config->get('vocabulary');
+    $image_field = $config->get('image_field');
+    $image_height = $config->get('image_height');
+    $image_width = $config->get('image_width');
     $vocabulary_tree = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree($vocabulary);
     $route_tid = $this->getCurrentRoute();
 
@@ -31,6 +35,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase {
         'name' => $this->getNameFromTid($item->tid),
         'url' => $this->getLinkFromTid($item->tid),
         'parents' => $item->parents,
+        'image' => $this->getImageFromTid($item->tid, $image_field),
+        'height' => $image_height != '' ? $image_height : 16,
+        'width' => $image_width != '' ? $image_width : 16,
       );
     }
 
@@ -83,6 +90,24 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase {
       return \Drupal::routeMatch()->getRawParameter('taxonomy_term');
     }
     return NULL;
+  }
+
+  private function getImageFromTid($tid, $image_field) {
+    if (!is_numeric($tid) || $image_field == '') {
+      return '';
+    }
+    $term = taxonomy_term_load($tid);
+    $image_field_name = $term->get($image_field)->getValue();
+    if (!isset($image_field_name[0]['target_id'])) {
+      return '';
+    }
+    $fid = $image_field_name[0]['target_id'];
+    if ($fid) {
+      $file = \Drupal\file\Entity\File::load($fid);
+      $path = Url::fromUri(file_create_url($file->getFileUri()));
+      return $path;
+    }
+    return '';
   }
 
 }

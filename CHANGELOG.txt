@@ -1,3 +1,0 @@
-Hierarchical Taxonomy Menu module 8.x-1.x, 2016-12-19
-----------------------------------------
-- Initial release

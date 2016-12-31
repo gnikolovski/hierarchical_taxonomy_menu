@@ -1,14 +1,17 @@
 {% macro menu_links(menu_tree, route_tid) %}
   {% import _self as macros %}
   {% for item in menu_tree %}
-    {% 
+    {%
       set liClass = [
         item.subitem ? 'menu-item menu-item--expanded' : 'menu-item',
         route_tid == item.tid ? 'menu-item--active' : ''
-      ] 
+      ]
     %}
     <li class="{{ liClass|join(' ') }}">
-      <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name }}</a>
+      {% if item.image %}
+        <img class="menu-item-image" src="{{ item.image }}" height="{{ item.height }}" width="{{ item.width }}" />
+      {% endif %}
+        <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name }}</a>
       {% if item.subitem %}
         <ul class="menu">
           {{ macros.menu_links(item.subitem, route_tid) }}
