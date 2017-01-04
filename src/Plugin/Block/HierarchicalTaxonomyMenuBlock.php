@@ -43,12 +43,22 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase {
 
     $tree = $this->generateTree($vocabulary_tree_array);
 
+    dsm($config->get('collapsible'));
+
     return array(
       '#theme' => 'hierarchical_taxonomy_menu',
       '#menu_tree' => $tree,
       '#route_tid' => $route_tid,
       '#classes' => $config->get('classes'),
       '#cache' => array('max-age' => 0),
+      '#attached' => array(
+        'library' =>  array(
+          'hierarchical_taxonomy_menu/menu',
+        ),
+        'drupalSettings' => array(
+          'collapsibleMenu' => $config->get('collapsible'),
+        )
+      ),
     );
   }
 

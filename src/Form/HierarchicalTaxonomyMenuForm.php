@@ -102,6 +102,12 @@ class HierarchicalTaxonomyMenuForm extends ConfigFormBase {
       '#default_value' => $config->get('image_width'),
     ];
 
+    $form['collapsible'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Make menu collapsible'),
+      '#default_value' => $config->get('collapsible'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -132,6 +138,7 @@ class HierarchicalTaxonomyMenuForm extends ConfigFormBase {
     $config->set('image_field', $values['image_field']);
     $config->set('image_height', $values['image_height']);
     $config->set('image_width', $values['image_width']);
+    $config->set('collapsible', $values['collapsible']);
     $config->save();
 
     parent::submitForm($form, $form_state);

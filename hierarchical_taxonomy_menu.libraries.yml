@@ -1,0 +1,5 @@
+menu:
+  js:
+    js/hierarchical-taxonomy-menu.js: {}
+  dependencies:
+    - core/jquery
