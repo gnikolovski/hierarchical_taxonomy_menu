@@ -109,7 +109,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabularies = taxonomy_vocabulary_get_names();
     $entityManager = $this->entityManager;
     foreach ($vocabularies as $vocabulary) {
-      $fields = $entity_manager->getFieldDefinitions('taxonomy_term', $vocabulary);
+      $fields = $entityManager->getFieldDefinitions('taxonomy_term', $vocabulary);
       $options[$vocabulary] = $vocabulary;
       $suboptions = [];
       $suboptions[$vocabulary . '|'] = $this->t('@vocabulary (with no image)', ['@vocabulary' => $vocabulary]);
