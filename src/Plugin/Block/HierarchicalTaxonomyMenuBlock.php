@@ -9,6 +9,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManager;
 use Drupal\file\Entity\File;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 
 /**
  * Provides a 'HierarchicalTaxonomyMenuBlock' block.
@@ -29,6 +31,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $entityManager;
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * Construct.
    *
    * @param array $configuration
@@ -42,10 +51,12 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    entityManager $entityManager
+    EntityManager $entityManager,
+    LanguageManagerInterface $language_manager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityManager = $entityManager;
+    $this->languageManager = $language_manager;
   }
 
   /**
@@ -56,7 +67,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager')
+      $container->get('entity.manager'),
+      $container->get('language_manager')
     );
   }
 
@@ -143,7 +155,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $image_height = $this->configuration['image_height'];
     $image_width = $this->configuration['image_width'];
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
-    $vocabulary_tree = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree($vocabulary);
+    $entityManager = $this->entityManager;
+    $vocabulary_tree = $entityManager->getStorage('taxonomy_term')->loadTree($vocabulary);
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
     $route_tid = $this->getCurrentRoute();
 
@@ -196,7 +209,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * Get term name.
    */
   private function getNameFromTid($tid) {
-    $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $language = $this->languageManager->getCurrentLanguage()->getId();
     $term = taxonomy_term_load($tid);
     $translation_languages = $term->getTranslationLanguages();
     if (isset($translation_languages[$language])) {
@@ -210,7 +223,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * Get term url.
    */
   private function getLinkFromTid($tid) {
-    $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $language = $this->languageManager->getCurrentLanguage()->getId();
     $term = taxonomy_term_load($tid);
     $translation_languages = $term->getTranslationLanguages();
     if (isset($translation_languages[$language])) {
