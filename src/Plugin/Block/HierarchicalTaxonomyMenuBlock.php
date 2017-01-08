@@ -8,6 +8,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManager;
+use Drupal\file\Entity\File;
 
 /**
  * Provides a 'HierarchicalTaxonomyMenuBlock' block.
@@ -25,7 +26,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    *
    * @var \Drupal\Core\Entity\entity_manager
    */
-  protected $entity_manager;
+  protected $entityManager;
 
   /**
    * Construct.
@@ -41,10 +42,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    entityManager $entity_manager
+    entityManager $entityManager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entity_manager = $entity_manager;
+    $this->entityManager = $entityManager;
   }
 
   /**
@@ -100,10 +101,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return $form;
   }
 
+  /**
+   * Generate select options.
+   */
   private function getOptions() {
     $options = [];
     $vocabularies = taxonomy_vocabulary_get_names();
-    $entity_manager = $this->entity_manager;
+    $entityManager = $this->entityManager;
     foreach ($vocabularies as $vocabulary) {
       $fields = $entity_manager->getFieldDefinitions('taxonomy_term', $vocabulary);
       $options[$vocabulary] = $vocabulary;
@@ -164,19 +168,22 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#route_tid' => $route_tid,
       '#cache' => ['max-age' => 0],
       '#attached' => [
-        'library' =>  [
+        'library' => [
           'hierarchical_taxonomy_menu/hierarchical_taxonomy_menu',
         ],
         'drupalSettings' => [
           'collapsibleMenu' => $this->configuration['collapsible'],
-        ]
+        ],
       ],
     ];
   }
 
+  /**
+   * Generate menu tree.
+   */
   private function generateTree($array, $parent = 0) {
     $tree = [];
-    foreach($array as $item) {
+    foreach ($array as $item) {
       if (reset($item['parents']) == $parent) {
         $item['subitem'] = isset($item['subitem']) ? $item['subitem'] : $this->generateTree($array, $item['tid']);
         $tree[] = $item;
@@ -185,6 +192,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return $tree;
   }
 
+  /**
+   * Get term name.
+   */
   private function getNameFromTid($tid) {
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $term = taxonomy_term_load($tid);
@@ -196,6 +206,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return $term->getName();
   }
 
+  /**
+   * Get term url.
+   */
   private function getLinkFromTid($tid) {
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $term = taxonomy_term_load($tid);
@@ -207,6 +220,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return $term->url();
   }
 
+  /**
+   * Get current route.
+   */
   private function getCurrentRoute() {
     if (\Drupal::routeMatch()->getRouteName() == 'entity.taxonomy_term.canonical') {
       return \Drupal::routeMatch()->getRawParameter('taxonomy_term');
@@ -214,6 +230,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return NULL;
   }
 
+  /**
+   * Get image from term.
+   */
   private function getImageFromTid($tid, $image_field) {
     if (!is_numeric($tid) || $image_field == '') {
       return '';
@@ -225,7 +244,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     }
     $fid = $image_field_name[0]['target_id'];
     if ($fid) {
-      $file = \Drupal\file\Entity\File::load($fid);
+      $file = File::load($fid);
       $path = Url::fromUri(file_create_url($file->getFileUri()));
       return $path;
     }
