@@ -40,7 +40,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * The current route match service.
    *
-   * @var \Drupal\Core\Routing\CurrentRouteMatch;
+   * @var \Drupal\Core\Routing\CurrentRouteMatch
    */
   protected $currentRouteMatch;
 
