@@ -9,8 +9,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManager;
 use Drupal\file\Entity\File;
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Routing\CurrentRouteMatch;
 
 /**
  * Provides a 'HierarchicalTaxonomyMenuBlock' block.
@@ -38,6 +38,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $languageManager;
 
   /**
+   * The current route match service.
+   *
+   * @var \Drupal\Core\Routing\CurrentRouteMatch;
+   */
+  protected $currentRouteMatch;
+
+  /**
    * Construct.
    *
    * @param array $configuration
@@ -52,11 +59,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $plugin_id,
     $plugin_definition,
     EntityManager $entityManager,
-    LanguageManagerInterface $language_manager
+    LanguageManagerInterface $language_manager,
+    CurrentRouteMatch $current_route_match
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityManager = $entityManager;
     $this->languageManager = $language_manager;
+    $this->currentRouteMatch = $current_route_match;
   }
 
   /**
@@ -68,7 +77,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $plugin_id,
       $plugin_definition,
       $container->get('entity.manager'),
-      $container->get('language_manager')
+      $container->get('language_manager'),
+      $container->get('current_route_match')
     );
   }
 
@@ -237,8 +247,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * Get current route.
    */
   private function getCurrentRoute() {
-    if (\Drupal::routeMatch()->getRouteName() == 'entity.taxonomy_term.canonical') {
-      return \Drupal::routeMatch()->getRawParameter('taxonomy_term');
+    if ($this->currentRouteMatch->getRouteName() == 'entity.taxonomy_term.canonical') {
+      return $this->currentRouteMatch->getRawParameter('taxonomy_term');
     }
     return NULL;
   }
