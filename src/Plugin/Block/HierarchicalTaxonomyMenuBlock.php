@@ -26,7 +26,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Drupal\Core\Entity\entity_manager definition.
    *
-   * @var \Drupal\Core\Entity\entity_manager
+   * @var \Drupal\Core\Entity\EntityManager
    */
   protected $entityManager;
 
