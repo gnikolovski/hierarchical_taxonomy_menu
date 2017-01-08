@@ -1,4 +1,4 @@
-menu:
+hierarchical_taxonomy_menu:
   js:
     js/hierarchical-taxonomy-menu.js: {}
   dependencies:

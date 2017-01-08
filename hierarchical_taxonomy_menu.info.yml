@@ -3,4 +3,3 @@ type: module
 description: Use taxonomy terms to create a menu
 core: 8.x
 package: Menu
-configure: hierarchical_taxonomy_menu.settings
