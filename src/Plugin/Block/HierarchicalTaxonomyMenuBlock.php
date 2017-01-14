@@ -24,7 +24,7 @@ use Drupal\Core\Routing\CurrentRouteMatch;
 class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Drupal\Core\Entity\entity_manager definition.
+   * The entity manager.
    *
    * @var \Drupal\Core\Entity\EntityManager
    */
@@ -45,25 +45,18 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $currentRouteMatch;
 
   /**
-   * Construct.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param string $plugin_definition
-   *   The plugin implementation definition.
+   * Constructor.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EntityManager $entityManager,
+    EntityManager $entity_manager,
     LanguageManagerInterface $language_manager,
     CurrentRouteMatch $current_route_match
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityManager = $entityManager;
+    $this->entityManager = $entity_manager;
     $this->languageManager = $language_manager;
     $this->currentRouteMatch = $current_route_match;
   }
@@ -162,12 +155,12 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   public function build() {
     $vocabulary_config = $this->configuration['vocabulary'];
     $vocabulary_config = explode('|', $vocabulary_config);
-    $image_height = $this->configuration['image_height'];
-    $image_width = $this->configuration['image_width'];
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
     $entityManager = $this->entityManager;
     $vocabulary_tree = $entityManager->getStorage('taxonomy_term')->loadTree($vocabulary);
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
+    $image_height = $this->configuration['image_height'];
+    $image_width = $this->configuration['image_width'];
     $route_tid = $this->getCurrentRoute();
 
     $vocabulary_tree_array = [];
