@@ -41,5 +41,5 @@ Email: nikolovski84@gmail.com
 
 Company: Studio Present, Subotica, Serbia  
 Website: (http://www.studiopresent.com)  
-Drupal: (https://www.drupal.org/studio-present)  
+Drupal: (https://www.drupal.org/studio-present)      
 Email: info@studiopresent.com
