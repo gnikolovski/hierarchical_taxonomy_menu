@@ -9,7 +9,7 @@
     %}
     <li class="{{ liClass|join(' ') }}">
       {% if item.image %}
-        <img class="menu-item-image" src="{{ item.image }}" height="{{ item.height }}" width="{{ item.width }}" />
+        <img class="menu-item-image" src="{{ item.image }}" {% if item.use_image_style == false %}height="{{ item.height }}" width="{{ item.width }}"{% endif %} />
       {% endif %}
         <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name }}</a>
       {% if item.subitem %}

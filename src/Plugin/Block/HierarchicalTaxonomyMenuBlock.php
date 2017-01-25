@@ -82,7 +82,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   public function defaultConfiguration() {
     return [
       'vocabulary' => '',
-      'image_settings' => FALSE,
+      'use_image_style' => FALSE,
       'image_height' => 16,
       'image_width' => 16,
       'image_style' => '',
@@ -101,10 +101,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#required' => TRUE,
       '#default_value' => $this->configuration['vocabulary'],
     ];
-    $form['image_settings'] = [
+    $form['use_image_style'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use image style'),
-      '#default_value' => $this->configuration['image_settings'],
+      '#default_value' => $this->configuration['use_image_style'],
     ];
     $form['image_height'] = [
       '#type' => 'number',
@@ -113,7 +113,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#states' => array(
         'visible' => array(
           array(
-            ':input[name="settings[image_settings]"]' => array('checked' => FALSE),
+            ':input[name="settings[use_image_style]"]' => array('checked' => FALSE),
           ),
         ),
       ),
@@ -125,7 +125,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#states' => array(
         'visible' => array(
           array(
-            ':input[name="settings[image_settings]"]' => array('checked' => FALSE),
+            ':input[name="settings[use_image_style]"]' => array('checked' => FALSE),
           ),
         ),
       ),
@@ -138,7 +138,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#states' => array(
         'visible' => array(
           array(
-            ':input[name="settings[image_settings]"]' => array('checked' => TRUE),
+            ':input[name="settings[use_image_style]"]' => array('checked' => TRUE),
           ),
         ),
       ),
@@ -179,7 +179,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['vocabulary'] = $form_state->getValue('vocabulary');
-    $this->configuration['image_settings'] = $form_state->getValue('image_settings');
+    $this->configuration['use_image_style'] = $form_state->getValue('use_image_style');
     $this->configuration['image_height'] = $form_state->getValue('image_height');
     $this->configuration['image_width'] = $form_state->getValue('image_width');
     $this->configuration['image_style'] = $form_state->getValue('image_style');
@@ -196,8 +196,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $entityManager = $this->entityManager;
     $vocabulary_tree = $entityManager->getStorage('taxonomy_term')->loadTree($vocabulary);
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
+    $use_image_style = $this->configuration['use_image_style'];
     $image_height = $this->configuration['image_height'];
     $image_width = $this->configuration['image_width'];
+    $image_style = $use_image_style == TRUE ? $this->configuration['image_style'] : NULL;
     $route_tid = $this->getCurrentRoute();
 
     $vocabulary_tree_array = [];
@@ -207,7 +209,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'name' => $this->getNameFromTid($item->tid),
         'url' => $this->getLinkFromTid($item->tid),
         'parents' => $item->parents,
-        'image' => $this->getImageFromTid($item->tid, $image_field),
+        'use_image_style' => $use_image_style,
+        'image' => $this->getImageFromTid($item->tid, $image_field, $image_style),
         'height' => $image_height != '' ? $image_height : 16,
         'width' => $image_width != '' ? $image_width : 16,
       ];
@@ -286,7 +289,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Get image from term.
    */
-  private function getImageFromTid($tid, $image_field) {
+  private function getImageFromTid($tid, $image_field, $image_style) {
     if (!is_numeric($tid) || $image_field == '') {
       return '';
     }
@@ -298,7 +301,18 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $fid = $image_field_name[0]['target_id'];
     if ($fid) {
       $file = File::load($fid);
-      $path = Url::fromUri(file_create_url($file->getFileUri()));
+      if ($image_style) {
+        $style = ImageStyle::load($image_style);
+        if ($style) {
+          $path = $style->buildUrl($file->getFileUri());
+        }
+        else {
+          $path = Url::fromUri(file_create_url($file->getFileUri()));
+        }
+      }
+      else {
+        $path = Url::fromUri(file_create_url($file->getFileUri()));
+      }
       return $path;
     }
     return '';
@@ -311,7 +325,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $options = [];
     $styles = ImageStyle::loadMultiple();
     foreach ($styles as $style) {
-      $options[] = $style->getName();
+      $style_name = $style->getName();
+      $options[$style_name] = $style_name;
     }
     return $options;
   }
