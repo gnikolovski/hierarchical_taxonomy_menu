@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityManager;
 use Drupal\file\Entity\File;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Provides a 'HierarchicalTaxonomyMenuBlock' block.
@@ -81,8 +82,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   public function defaultConfiguration() {
     return [
       'vocabulary' => '',
+      'image_settings' => FALSE,
       'image_height' => 16,
       'image_width' => 16,
+      'image_style' => '',
       'collapsible' => 0,
     ];
   }
@@ -94,19 +97,51 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $form['vocabulary'] = [
       '#title' => $this->t('Vocabulary'),
       '#type' => 'select',
-      '#options' => $this->getOptions(),
+      '#options' => $this->getVocabularyOptions(),
       '#required' => TRUE,
       '#default_value' => $this->configuration['vocabulary'],
+    ];
+    $form['image_settings'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use image style'),
+      '#default_value' => $this->configuration['image_settings'],
     ];
     $form['image_height'] = [
       '#type' => 'number',
       '#title' => $this->t('Image height'),
       '#default_value' => $this->configuration['image_height'],
+      '#states' => array(
+        'visible' => array(
+          array(
+            ':input[name="settings[image_settings]"]' => array('checked' => FALSE),
+          ),
+        ),
+      ),
     ];
     $form['image_width'] = [
       '#type' => 'number',
       '#title' => $this->t('Image width'),
       '#default_value' => $this->configuration['image_width'],
+      '#states' => array(
+        'visible' => array(
+          array(
+            ':input[name="settings[image_settings]"]' => array('checked' => FALSE),
+          ),
+        ),
+      ),
+    ];
+    $form['image_style'] = [
+      '#title' => $this->t('Image style'),
+      '#type' => 'select',
+      '#options' => $this->getImageStyleOptions(),
+      '#default_value' => $this->configuration['image_style'],
+      '#states' => array(
+        'visible' => array(
+          array(
+            ':input[name="settings[image_settings]"]' => array('checked' => TRUE),
+          ),
+        ),
+      ),
     ];
     $form['collapsible'] = [
       '#type' => 'checkbox',
@@ -117,9 +152,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   }
 
   /**
-   * Generate select options.
+   * Generate vocabulary select options.
    */
-  private function getOptions() {
+  private function getVocabularyOptions() {
     $options = [];
     $vocabularies = taxonomy_vocabulary_get_names();
     $entityManager = $this->entityManager;
@@ -144,8 +179,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['vocabulary'] = $form_state->getValue('vocabulary');
+    $this->configuration['image_settings'] = $form_state->getValue('image_settings');
     $this->configuration['image_height'] = $form_state->getValue('image_height');
     $this->configuration['image_width'] = $form_state->getValue('image_width');
+    $this->configuration['image_style'] = $form_state->getValue('image_style');
     $this->configuration['collapsible'] = $form_state->getValue('collapsible');
   }
 
@@ -265,6 +302,18 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       return $path;
     }
     return '';
+  }
+
+  /**
+   * Generate image style select options.
+   */
+  private function getImageStyleOptions() {
+    $options = [];
+    $styles = ImageStyle::loadMultiple();
+    foreach ($styles as $style) {
+      $options[] = $style->getName();
+    }
+    return $options;
   }
 
 }
