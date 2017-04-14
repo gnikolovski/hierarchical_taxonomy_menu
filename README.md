@@ -27,7 +27,7 @@ None.
 
 ## USING THE MODULE
 
-After you install the module go to the block layout 'admin/structure/block' and
+After you install the module go to the block layout '/admin/structure/block' and
 add 'Hierarchical Taxonomy Menu' block to any region you want. In block settings
 you can choose a vocabulary from which you want to create a menu, and if that
 vocabulary has image fields you will see multiple options in select box.
