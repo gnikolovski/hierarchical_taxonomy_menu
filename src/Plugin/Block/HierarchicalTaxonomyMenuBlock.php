@@ -18,7 +18,7 @@ use Drupal\image\Entity\ImageStyle;
  *
  * @Block(
  *  id = "hierarchical_taxonomy_menu",
- *  admin_label = @Translation("Hierarchical taxonomy menu"),
+ *  admin_label = @Translation("Hierarchical Taxonomy Menu"),
  *  category = @Translation("Menus")
  * )
  */
@@ -110,38 +110,38 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#type' => 'number',
       '#title' => $this->t('Image height'),
       '#default_value' => $this->configuration['image_height'],
-      '#states' => array(
-        'visible' => array(
-          array(
-            ':input[name="settings[use_image_style]"]' => array('checked' => FALSE),
-          ),
-        ),
-      ),
+      '#states' => [
+        'visible' => [
+          [
+            ':input[name="settings[use_image_style]"]' => ['checked' => FALSE],
+          ],
+        ],
+      ],
     ];
     $form['image_width'] = [
       '#type' => 'number',
       '#title' => $this->t('Image width'),
       '#default_value' => $this->configuration['image_width'],
-      '#states' => array(
-        'visible' => array(
-          array(
-            ':input[name="settings[use_image_style]"]' => array('checked' => FALSE),
-          ),
-        ),
-      ),
+      '#states' => [
+        'visible' => [
+          [
+            ':input[name="settings[use_image_style]"]' => ['checked' => FALSE],
+          ],
+        ],
+      ],
     ];
     $form['image_style'] = [
       '#title' => $this->t('Image style'),
       '#type' => 'select',
       '#options' => $this->getImageStyleOptions(),
       '#default_value' => $this->configuration['image_style'],
-      '#states' => array(
-        'visible' => array(
-          array(
-            ':input[name="settings[use_image_style]"]' => array('checked' => TRUE),
-          ),
-        ),
-      ),
+      '#states' => [
+        'visible' => [
+          [
+            ':input[name="settings[use_image_style]"]' => ['checked' => TRUE],
+          ],
+        ],
+      ],
     ];
     $form['collapsible'] = [
       '#type' => 'checkbox',
@@ -166,7 +166,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       foreach ($fields as $field) {
         if ($field->getType() == 'image') {
           $field_name = $field->getName();
-          $suboptions[$vocabulary . '|' . $field_name] = $this->t('@vocabulary (with image: @image_field)', ['@vocabulary' => $vocabulary, '@image_field' => $field_name]);
+          $suboptions[$vocabulary . '|' . $field_name] = $this->t('@vocabulary (with image: @image_field)', [
+            '@vocabulary' => $vocabulary,
+            '@image_field' => $field_name,
+          ]);
         }
       }
       $options[$vocabulary] = $suboptions;
@@ -194,7 +197,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_config = explode('|', $vocabulary_config);
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
     $entityManager = $this->entityManager;
-    $vocabulary_tree = $entityManager->getStorage('taxonomy_term')->loadTree($vocabulary);
+    $vocabulary_tree = $entityManager->getStorage('taxonomy_term')
+      ->loadTree($vocabulary);
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
     $use_image_style = $this->configuration['use_image_style'];
     $image_height = $this->configuration['image_height'];
