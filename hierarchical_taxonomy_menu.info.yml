@@ -1,5 +1,5 @@
-name: Hierarchical taxonomy menu
+name: Hierarchical Taxonomy Menu
 type: module
-description: Use taxonomy terms to create a menu
+description: 'Hierarchical Taxonomy Menu is a module for creating menus from taxonomy vocabularies.'
 core: 8.x
 package: Menu
