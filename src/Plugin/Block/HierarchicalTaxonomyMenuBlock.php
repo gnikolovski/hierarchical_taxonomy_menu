@@ -82,6 +82,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   public function defaultConfiguration() {
     return [
       'vocabulary' => '',
+      'base_term' => '',
       'use_image_style' => FALSE,
       'image_height' => 16,
       'image_width' => 16,
@@ -100,6 +101,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#options' => $this->getVocabularyOptions(),
       '#required' => TRUE,
       '#default_value' => $this->configuration['vocabulary'],
+    ];
+    $form['base_term'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Base term'),
+      '#size' => 20,
+      '#default_value' => $this->configuration['base_term'],
+      '#description' => $this->t('Enter a base term and menu items will only be generated for its children. You can enter term ID or term name. Leave empty to generate menu for the entire vocabulary.'),
     ];
     $form['use_image_style'] = [
       '#type' => 'checkbox',
@@ -182,6 +190,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['vocabulary'] = $form_state->getValue('vocabulary');
+    $this->configuration['base_term'] = $form_state->getValue('base_term');
     $this->configuration['use_image_style'] = $form_state->getValue('use_image_style');
     $this->configuration['image_height'] = $form_state->getValue('image_height');
     $this->configuration['image_width'] = $form_state->getValue('image_width');
@@ -197,8 +206,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_config = explode('|', $vocabulary_config);
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
     $entityManager = $this->entityManager;
+    $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term']);
     $vocabulary_tree = $entityManager->getStorage('taxonomy_term')
-      ->loadTree($vocabulary);
+      ->loadTree($vocabulary, $base_term);
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
     $use_image_style = $this->configuration['use_image_style'];
     $image_height = $this->configuration['image_height'];
@@ -220,7 +230,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       ];
     }
 
-    $tree = $this->generateTree($vocabulary_tree_array);
+    $tree = $this->generateTree($vocabulary_tree_array, $base_term);
 
     return [
       '#theme' => 'hierarchical_taxonomy_menu',
@@ -333,6 +343,23 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $options[$style_name] = $style_name;
     }
     return $options;
+  }
+
+  /**
+   * Return base taxonomy term ID.
+   */
+  private function getVocabularyBaseTerm($base_term) {
+    if (!$base_term) {
+      return 0;
+    }
+    if (is_numeric($base_term)) {
+      return $base_term;
+    }
+    else {
+      $term = $this->entityManager->getStorage('taxonomy_term')
+        ->loadByProperties(['name' => $base_term]);
+      return $term ? reset($term)->id() : 0;
+    }
   }
 
 }
