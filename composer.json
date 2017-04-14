@@ -1,6 +1,6 @@
 {
   "name": "drupal/hierarchical_taxonomy_menu",
-  "description": "Hierarchical taxonomy menu is a Drupal 8 module for creating menus from taxonomy vocabularies.",
+  "description": "Hierarchical Taxonomy Menu is a Drupal 8 module for creating menus from taxonomy vocabularies.",
   "type": "drupal-module",
   "homepage": "http://drupal.org/project/hierarchical_taxonomy_menu",
   "authors": [
