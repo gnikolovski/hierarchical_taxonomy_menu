@@ -30,7 +30,9 @@ None.
 After you install the module go to the block layout '/admin/structure/block' and
 add 'Hierarchical Taxonomy Menu' block to any region you want. In block settings
 you can choose a vocabulary from which you want to create a menu, and if that
-vocabulary has image fields you will see multiple options in select box.
+vocabulary has image fields you will see multiple options in select box. You can
+limit your menu to a part of taxonomy terms, by selecting a base term. In this
+case menu items will be generated only for its children terms.
 
 ### AUTHOR
 
