@@ -7,11 +7,13 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityManager;
+use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\file\Entity\File;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\image\Entity\ImageStyle;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Entity\EntityTypeManager;
 
 /**
  * Provides a 'HierarchicalTaxonomyMenuBlock' block.
@@ -25,11 +27,18 @@ use Drupal\image\Entity\ImageStyle;
 class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The entity manager.
+   * The entity field manager.
    *
-   * @var \Drupal\Core\Entity\EntityManager
+   * @var \Drupal\Core\Entity\EntityFieldManager
    */
-  protected $entityManager;
+  protected $entityFieldManager;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManager
+   */
+  protected $entityTypeManager;
 
   /**
    * The language manager.
@@ -52,12 +61,14 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EntityManager $entity_manager,
+    EntityFieldManager $entity_field_manager,
+    EntityTypeManager $entity_type_manager,
     LanguageManagerInterface $language_manager,
     CurrentRouteMatch $current_route_match
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityManager = $entity_manager;
+    $this->entityFieldManager = $entity_field_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->languageManager = $language_manager;
     $this->currentRouteMatch = $current_route_match;
   }
@@ -70,7 +81,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager'),
+      $container->get('entity_field.manager'),
+      $container->get('entity_type.manager'),
       $container->get('language_manager'),
       $container->get('current_route_match')
     );
@@ -165,9 +177,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   private function getVocabularyOptions() {
     $options = [];
     $vocabularies = taxonomy_vocabulary_get_names();
-    $entityManager = $this->entityManager;
+    $entity_field_manager = $this->entityFieldManager;
     foreach ($vocabularies as $vocabulary) {
-      $fields = $entityManager->getFieldDefinitions('taxonomy_term', $vocabulary);
+      $fields = $entity_field_manager->getFieldDefinitions('taxonomy_term', $vocabulary);
       $options[$vocabulary] = $vocabulary;
       $suboptions = [];
       $suboptions[$vocabulary . '|'] = $this->t('@vocabulary (with no image)', ['@vocabulary' => $vocabulary]);
@@ -205,9 +217,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_config = $this->configuration['vocabulary'];
     $vocabulary_config = explode('|', $vocabulary_config);
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
-    $entityManager = $this->entityManager;
+    $entity_type_manager = $this->entityTypeManager;
     $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term']);
-    $vocabulary_tree = $entityManager->getStorage('taxonomy_term')
+    $vocabulary_tree = $entity_type_manager->getStorage('taxonomy_term')
       ->loadTree($vocabulary, $base_term);
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
     $use_image_style = $this->configuration['use_image_style'];
@@ -267,7 +279,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getNameFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
-    $term = taxonomy_term_load($tid);
+    $term = Term::load($tid);
     $translation_languages = $term->getTranslationLanguages();
     if (isset($translation_languages[$language])) {
       $term_translated = $term->getTranslation($language);
@@ -281,7 +293,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getLinkFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
-    $term = taxonomy_term_load($tid);
+    $term = Term::load($tid);
     $translation_languages = $term->getTranslationLanguages();
     if (isset($translation_languages[$language])) {
       $term_translated = $term->getTranslation($language);
@@ -307,7 +319,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     if (!is_numeric($tid) || $image_field == '') {
       return '';
     }
-    $term = taxonomy_term_load($tid);
+    $term = Term::load($tid);
     $image_field_name = $term->get($image_field)->getValue();
     if (!isset($image_field_name[0]['target_id'])) {
       return '';
@@ -356,7 +368,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       return $base_term;
     }
     else {
-      $term = $this->entityManager->getStorage('taxonomy_term')
+      $term = $this->entityFieldManager->getStorage('taxonomy_term')
         ->loadByProperties(['name' => $base_term]);
       return $term ? reset($term)->id() : 0;
     }
