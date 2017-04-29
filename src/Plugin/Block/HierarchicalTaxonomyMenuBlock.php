@@ -217,9 +217,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_config = $this->configuration['vocabulary'];
     $vocabulary_config = explode('|', $vocabulary_config);
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
-    $entity_type_manager = $this->entityTypeManager;
     $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term']);
-    $vocabulary_tree = $entity_type_manager->getStorage('taxonomy_term')
+    $vocabulary_tree = $this->entityTypeManager->getStorage('taxonomy_term')
       ->loadTree($vocabulary, $base_term);
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
     $use_image_style = $this->configuration['use_image_style'];
@@ -368,7 +367,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       return $base_term;
     }
     else {
-      $term = $this->entityFieldManager->getStorage('taxonomy_term')
+      $term = $this->entityTypeManager->getStorage('taxonomy_term')
         ->loadByProperties(['name' => $base_term]);
       return $term ? reset($term)->id() : 0;
     }
