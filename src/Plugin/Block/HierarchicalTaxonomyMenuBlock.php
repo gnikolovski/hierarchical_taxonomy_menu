@@ -94,6 +94,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   public function defaultConfiguration() {
     return [
       'vocabulary' => '',
+      'max_depth' => 10,
       'base_term' => '',
       'use_image_style' => FALSE,
       'image_height' => 16,
@@ -113,6 +114,25 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#options' => $this->getVocabularyOptions(),
       '#required' => TRUE,
       '#default_value' => $this->configuration['vocabulary'],
+    ];
+    $form['max_depth'] = [
+      '#title' => $this->t('Number of sublevels to display'),
+      '#type' => 'select',
+      '#options' => [
+        '0' => '0',
+        '1' => '1',
+        '2' => '2',
+        '3' => '3',
+        '4' => '4',
+        '5' => '5',
+        '6' => '6',
+        '7' => '7',
+        '8' => '8',
+        '9' => '9',
+        '10' => $this->t('Unlimited'),
+      ],
+      '#required' => TRUE,
+      '#default_value' => $this->configuration['max_depth'],
     ];
     $form['base_term'] = [
       '#type' => 'textfield',
@@ -202,6 +222,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['vocabulary'] = $form_state->getValue('vocabulary');
+    $this->configuration['max_depth'] = $form_state->getValue('max_depth');
     $this->configuration['base_term'] = $form_state->getValue('base_term');
     $this->configuration['use_image_style'] = $form_state->getValue('use_image_style');
     $this->configuration['image_height'] = $form_state->getValue('image_height');
@@ -217,6 +238,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_config = $this->configuration['vocabulary'];
     $vocabulary_config = explode('|', $vocabulary_config);
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
+    $max_depth = $this->configuration['max_depth'];
     $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term']);
     $vocabulary_tree = $this->entityTypeManager->getStorage('taxonomy_term')
       ->loadTree($vocabulary, $base_term);
@@ -248,6 +270,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#menu_tree' => $tree,
       '#route_tid' => $route_tid,
       '#cache' => ['max-age' => 0],
+      '#current_depth' => 0,
+      '#max_depth' => $max_depth,
       '#attached' => [
         'library' => [
           'hierarchical_taxonomy_menu/hierarchical_taxonomy_menu',

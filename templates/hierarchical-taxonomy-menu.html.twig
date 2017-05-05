@@ -1,9 +1,9 @@
-{% macro menu_links(menu_tree, route_tid) %}
+{% macro menu_links(menu_tree, route_tid, current_depth, max_depth) %}
   {% import _self as macros %}
   {% for item in menu_tree %}
     {%
       set liClass = [
-        item.subitem ? 'menu-item menu-item--expanded' : 'menu-item',
+        item.subitem and current_depth < max_depth ? 'menu-item menu-item--expanded' : 'menu-item',
         route_tid == item.tid ? 'menu-item--active' : ''
       ]
     %}
@@ -12,9 +12,9 @@
         <img class="menu-item-image" src="{{ item.image }}" {% if item.use_image_style == false %}height="{{ item.height }}" width="{{ item.width }}"{% endif %} />
       {% endif %}
         <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name }}</a>
-      {% if item.subitem %}
+      {% if item.subitem and current_depth < max_depth %}
         <ul class="menu">
-          {{ macros.menu_links(item.subitem, route_tid) }}
+          {{ macros.menu_links(item.subitem, route_tid, current_depth + 1, max_depth) }}
         </ul>
       {% endif %}
     </li>
@@ -23,5 +23,5 @@
 
 {% import _self as macros %}
 <ul class="menu hierarchical-taxonomy-menu">
-  {{ macros.menu_links(menu_tree, route_tid) }}
+  {{ macros.menu_links(menu_tree, route_tid, 0, max_depth) }}
 </ul>
