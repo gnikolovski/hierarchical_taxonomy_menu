@@ -12,9 +12,11 @@
       var isChildVisible = $(this).parent().children('.menu').is(':visible');
       if (isChildVisible) {
         $(this).parent().children('.menu').slideUp();
+        $(this).parent().removeClass('active');
       }
       else {
         $(this).parent().children('.menu').slideDown();
+        $(this).parent().addClass('active');
       }
     });
   });
