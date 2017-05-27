@@ -3,17 +3,17 @@
 namespace Drupal\hierarchical_taxonomy_menu\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Url;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\file\Entity\File;
 use Drupal\Core\Language\LanguageManagerInterface;
-use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
+use Drupal\Core\Url;
+use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\taxonomy\Entity\Term;
-use Drupal\Core\Entity\EntityTypeManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'HierarchicalTaxonomyMenuBlock' block.
@@ -55,16 +55,25 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $currentRouteMatch;
 
   /**
-   * Constructor.
+   * Constructs a HierarchicalTaxonomyMenuBlock object.
+   *
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager service
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager service.
+   * @param \Drupal\Core\Routing\ResettableStackedRouteMatchInterface $current_route_match
+   *   The current route match service.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EntityFieldManager $entity_field_manager,
-    EntityTypeManager $entity_type_manager,
+    EntityFieldManagerInterface $entity_field_manager,
+    EntityTypeManagerInterface $entity_type_manager,
     LanguageManagerInterface $language_manager,
-    CurrentRouteMatch $current_route_match
+    ResettableStackedRouteMatchInterface $current_route_match
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityFieldManager = $entity_field_manager;
