@@ -7,6 +7,13 @@
 
     $('.hierarchical-taxonomy-menu ul.menu').not(':has(.menu-item--active)').hide();
 
+    $('.menu-item.menu-item--expanded').each(function(i, obj) {
+      var self = $(this);
+      if (self.find('a.active').length) {
+        self.addClass('active');
+      }
+    });
+
     $('.hierarchical-taxonomy-menu .menu-item--expanded > a').on('click', function (e) {
       e.preventDefault();
       var isChildVisible = $(this).parent().children('.menu').is(':visible');
