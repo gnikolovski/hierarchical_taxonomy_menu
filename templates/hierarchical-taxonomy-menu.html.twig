@@ -13,6 +13,9 @@
       {% endif %}
         <a href="{{ item.url }}" {% if route_tid == item.tid %}class="active"{% endif %}>{{ item.name }}</a>
       {% if item.subitem and current_depth < max_depth %}
+        {% if item.interactive_parent %}
+          <i class="fa fa-arrow-circle-right parent-toggle" aria-hidden="true"></i><span class="visually-hidden">Expand Secondary Navigation Menu</span>
+        {% endif %}
         <ul class="menu">
           {{ macros.menu_links(item.subitem, route_tid, current_depth + 1, max_depth) }}
         </ul>

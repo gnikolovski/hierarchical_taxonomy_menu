@@ -110,6 +110,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'image_width' => 16,
       'image_style' => '',
       'collapsible' => 0,
+      'interactive_parent' => 0
     ];
   }
 
@@ -197,6 +198,19 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#title' => $this->t('Make menu collapsible'),
       '#default_value' => $this->configuration['collapsible'],
     ];
+
+    $form['interactive_parent'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Make parent menu items interactive while collapsible'),
+      '#default_value' => $this->configuration['interactive_parent'],
+      '#states' => [
+        'visible' => [
+          [
+            ':input[name="settings[collapsible]"]' => ['checked' => TRUE],
+          ],
+        ],
+      ],
+    ];
     return $form;
   }
 
@@ -237,6 +251,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['image_width'] = $form_state->getValue('image_width');
     $this->configuration['image_style'] = $form_state->getValue('image_style');
     $this->configuration['collapsible'] = $form_state->getValue('collapsible');
+    $this->configuration['interactive_parent'] = $form_state->getValue('interactive_parent');
   }
 
   /**
@@ -268,6 +283,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'image' => $this->getImageFromTid($item->tid, $image_field, $image_style),
         'height' => $image_height != '' ? $image_height : 16,
         'width' => $image_width != '' ? $image_width : 16,
+        'interactive_parent' => $this->configuration['interactive_parent'],
       ];
     }
 
@@ -286,6 +302,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         ],
         'drupalSettings' => [
           'collapsibleMenu' => $this->configuration['collapsible'],
+          'interactiveParentMenu' => $this->configuration['interactive_parent'],
         ],
       ],
     ];
