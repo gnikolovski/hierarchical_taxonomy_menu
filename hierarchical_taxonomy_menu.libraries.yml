@@ -1,4 +1,8 @@
 hierarchical_taxonomy_menu:
+  version: 1.x
+  css:
+    theme:
+      css/hierarchical-taxonomy-menu.css: {}
   js:
     js/hierarchical-taxonomy-menu.js: {}
   dependencies:
