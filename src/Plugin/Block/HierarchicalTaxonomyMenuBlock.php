@@ -112,6 +112,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'collapsible' => 0,
       'interactive_parent' => 0,
       'dynamic_base_term' => 0,
+      'dynamic_block_title' => FALSE,
     ];
   }
 
@@ -119,6 +120,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
+    $form['dynamic_block_title'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Dynamic block title'),
+      '#default_value' => $this->configuration['dynamic_block_title'],
+      '#description' => $this->t('Make the block title match the current taxonomy term.'),
+    ];
+
     $form['vocabulary'] = [
       '#title' => $this->t('Vocabulary'),
       '#type' => 'select',
@@ -258,6 +266,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
+    $this->configuration['dynamic_block_title'] = $form_state->getValue('dynamic_block_title');
     $this->configuration['vocabulary'] = $form_state->getValue('vocabulary');
     $this->configuration['max_depth'] = $form_state->getValue('max_depth');
     $this->configuration['dynamic_base_term'] = $form_state->getValue('dynamic_base_term');

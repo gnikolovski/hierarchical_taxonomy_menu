@@ -20,3 +20,31 @@ function hierarchical_taxonomy_menu_theme($existing, $type, $theme, $path) {
     ],
   ];
 }
+
+/**
+ * Implements template_preprocess_block().
+ */
+function hierarchical_taxonomy_menu_preprocess_block(&$variables) {
+  if ($variables['plugin_id'] == 'hierarchical_taxonomy_menu' &&
+    $variables['configuration']['label_display'] == 'visible' &&
+    $variables['configuration']['dynamic_block_title']
+  ) {
+    $term = \Drupal::routeMatch()
+      ->getParameter('taxonomy_term');
+
+    if (!$term) {
+      return NULL;
+    }
+
+    $langcode = \Drupal::languageManager()
+      ->getCurrentLanguage()
+      ->getId();
+
+    $translation_languages = $term->getTranslationLanguages();
+    if (isset($translation_languages[$langcode])) {
+      $term = $term->getTranslation($langcode);
+    }
+
+    $variables['label'] = $term->getName();
+  }
+}
