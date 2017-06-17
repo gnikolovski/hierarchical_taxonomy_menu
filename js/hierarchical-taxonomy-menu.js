@@ -11,6 +11,12 @@
       var self = $(this);
       if (self.find('a.active').length) {
         self.addClass('active');
+
+        if (drupalSettings.interactiveParentMenu) {
+          if (!self.hasClass('menu-item--active')) {
+            self.children('i').toggleClass("arrow-right arrow-down");
+          }
+        }
       }
     });
 
