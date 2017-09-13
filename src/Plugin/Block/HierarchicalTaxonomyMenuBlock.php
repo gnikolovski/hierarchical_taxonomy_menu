@@ -320,6 +320,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#route_tid' => $route_tid,
       '#cache' => ['max-age' => 0],
       '#current_depth' => 0,
+      '#vocabularies' => $vocabulary,
       '#max_depth' => $max_depth,
       '#attached' => [
         'library' => [
