@@ -15,3 +15,7 @@
   height: 14px;
   cursor: pointer;
 }
+
+.hierarchical-taxonomy-menu .menu {
+  display: none;
+}

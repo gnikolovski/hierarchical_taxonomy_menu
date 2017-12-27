@@ -2,6 +2,7 @@
   'use strict';
   $(document).ready(function () {
     if (drupalSettings.collapsibleMenu === 0) {
+      $('.hierarchical-taxonomy-menu .menu').css('display', 'block');
       return;
     }
 
