@@ -10,6 +10,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Cache\Cache;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\taxonomy\Entity\Term;
@@ -104,6 +105,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return [
       'vocabulary' => '',
       'max_depth' => 10,
+      'max_age' => 'PERMANENT',
       'base_term' => '',
       'use_image_style' => FALSE,
       'image_height' => 16,
@@ -133,6 +135,22 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#options' => $this->getVocabularyOptions(),
       '#required' => TRUE,
       '#default_value' => $this->configuration['vocabulary'],
+    ];
+    $form['max_age'] = [
+      '#title' => $this->t('Cache Max Age'),
+      '#type' => 'select',
+      '#options' => [
+        '0' => 'No Caching',
+        '1800' => '30 Minutes',
+        '3600' => '1 Hour',
+        '21600' => '6 Hours',
+        '43200' => '12 Hours',
+        '86400' => '1 Day',
+        '604800' => '1 Week',
+        'PERMANENT' => 'PERMANENT',
+      ],
+      '#default_value' => $this->configuration['max_age'],
+      '#description' => $this->t('Set the max age the menu is allowed to be cached for.'),
     ];
     $form['max_depth'] = [
       '#title' => $this->t('Number of sublevels to display'),
@@ -271,6 +289,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['max_depth'] = $form_state->getValue('max_depth');
     $this->configuration['dynamic_base_term'] = $form_state->getValue('dynamic_base_term');
     $this->configuration['base_term'] = $form_state->getValue('base_term');
+    $this->configuration['max_age'] = $form_state->getValue('max_age');
     $this->configuration['use_image_style'] = $form_state->getValue('use_image_style');
     $this->configuration['image_height'] = $form_state->getValue('image_height');
     $this->configuration['image_width'] = $form_state->getValue('image_width');
@@ -296,6 +315,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $image_width = $this->configuration['image_width'];
     $image_style = $use_image_style == TRUE ? $this->configuration['image_style'] : NULL;
     $route_tid = $this->getCurrentRoute();
+    $max_age = $this->getMaxAge($this->configuration['max_age']);
 
     $vocabulary_tree_array = [];
     foreach ($vocabulary_tree as $item) {
@@ -318,7 +338,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#theme' => 'hierarchical_taxonomy_menu',
       '#menu_tree' => $tree,
       '#route_tid' => $route_tid,
-      '#cache' => ['max-age' => 0],
+      '#cache' => ['max-age' => $max_age],
       '#current_depth' => 0,
       '#vocabularies' => $vocabulary,
       '#max_depth' => $max_depth,
@@ -457,6 +477,24 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       }
     }
 
+  }
+
+  /**
+   * Return Cache Max Age
+   */
+  public function getMaxAge($max_age) {
+    if (!$max_age){
+      $max_age = 0;
+      return $max_age;
+    }
+
+    if ($max_age == 'PERMANENT') {
+      $max_age = Cache::PERMANENT;
+      return $max_age;
+    }
+    else {
+      return $max_age;
+    }
   }
 
 }
