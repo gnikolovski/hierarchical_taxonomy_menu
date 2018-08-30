@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Contains hierarchical-taxonomy-menu.js.
+ */
+
 (function ($) {
   'use strict';
   $(document).ready(function () {
@@ -8,7 +13,7 @@
 
     $('.hierarchical-taxonomy-menu ul.menu').not(':has(.menu-item--active)').hide();
 
-    $('.menu-item.menu-item--expanded').each(function(i, obj) {
+    $('.menu-item.menu-item--expanded').each(function (i, obj) {
       var self = $(this);
       if (self.find('a.active').length) {
         self.addClass('active');
@@ -34,7 +39,8 @@
           $(this).parent().addClass('active');
         }
       });
-    } else {
+    }
+    else {
       $('.hierarchical-taxonomy-menu .menu-item--expanded > .parent-toggle').on('click', function (e) {
         e.preventDefault();
         $(this).closest('i').toggleClass("arrow-right arrow-down");

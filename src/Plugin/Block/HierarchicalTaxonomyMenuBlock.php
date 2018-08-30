@@ -59,7 +59,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * Constructs a HierarchicalTaxonomyMenuBlock object.
    *
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
-   *   The entity field manager service
+   *   The entity field manager service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
@@ -480,10 +480,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   }
 
   /**
-   * Return Cache Max Age
+   * Return Cache Max Age.
    */
   public function getMaxAge($max_age) {
-    if (!$max_age){
+    if (!$max_age) {
       $max_age = 0;
       return $max_age;
     }
