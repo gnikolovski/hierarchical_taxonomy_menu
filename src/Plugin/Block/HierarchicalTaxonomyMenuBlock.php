@@ -3,6 +3,7 @@
 namespace Drupal\hierarchical_taxonomy_menu\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -10,7 +11,6 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Cache\Cache;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\taxonomy\Entity\Term;
@@ -58,6 +58,12 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Constructs a HierarchicalTaxonomyMenuBlock object.
    *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin ID for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -105,16 +111,16 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return [
       'vocabulary' => '',
       'max_depth' => 10,
-      'max_age' => 'PERMANENT',
-      'base_term' => '',
+      'dynamic_block_title' => FALSE,
+      'collapsible' => 0,
+      'interactive_parent' => 0,
       'use_image_style' => FALSE,
       'image_height' => 16,
       'image_width' => 16,
       'image_style' => '',
-      'collapsible' => 0,
-      'interactive_parent' => 0,
+      'max_age' => 'PERMANENT',
+      'base_term' => '',
       'dynamic_base_term' => 0,
-      'dynamic_block_title' => FALSE,
     ];
   }
 
@@ -122,37 +128,21 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
-    $form['dynamic_block_title'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Dynamic block title'),
-      '#default_value' => $this->configuration['dynamic_block_title'],
-      '#description' => $this->t('Make the block title match the current taxonomy term.'),
+    $form['basic'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Basic settings'),
     ];
 
-    $form['vocabulary'] = [
-      '#title' => $this->t('Vocabulary'),
+    $form['basic']['vocabulary'] = [
+      '#title' => $this->t('Use taxonomy terms from this vocabulary to create a menu'),
       '#type' => 'select',
       '#options' => $this->getVocabularyOptions(),
       '#required' => TRUE,
       '#default_value' => $this->configuration['vocabulary'],
+      '#description' => $this->t('You can display an image next to a menu item if your vocabulary has an image field.'),
     ];
-    $form['max_age'] = [
-      '#title' => $this->t('Cache Max Age'),
-      '#type' => 'select',
-      '#options' => [
-        '0' => 'No Caching',
-        '1800' => '30 Minutes',
-        '3600' => '1 Hour',
-        '21600' => '6 Hours',
-        '43200' => '12 Hours',
-        '86400' => '1 Day',
-        '604800' => '1 Week',
-        'PERMANENT' => 'PERMANENT',
-      ],
-      '#default_value' => $this->configuration['max_age'],
-      '#description' => $this->t('Set the max age the menu is allowed to be cached for.'),
-    ];
-    $form['max_depth'] = [
+
+    $form['basic']['max_depth'] = [
       '#title' => $this->t('Number of sublevels to display'),
       '#type' => 'select',
       '#options' => [
@@ -168,60 +158,77 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         '9' => '9',
         '10' => $this->t('Unlimited'),
       ],
-      '#required' => TRUE,
       '#default_value' => $this->configuration['max_depth'],
     ];
 
-    $form['dynamic_base_term'] = [
+    $form['basic']['dynamic_block_title'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Dynamic Base term'),
-      '#default_value' => $this->configuration['dynamic_base_term'],
-      '#description' => $this->t('Automatically set the base term from taxonomy page. The base term is then set to the current term and menu items will only be generated for its children.'),
+      '#title' => $this->t('Make the block title match the current taxonomy term name'),
+      '#default_value' => $this->configuration['dynamic_block_title'],
     ];
 
-    $form['base_term'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Base term'),
-      '#size' => 20,
-      '#default_value' => $this->configuration['base_term'],
-      '#description' => $this->t('Enter a base term and menu items will only be generated for its children. You can enter term ID or term name. Leave empty to generate menu for the entire vocabulary.'),
+    $form['basic']['collapsible'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Make the menu collapsed by default'),
+      '#default_value' => $this->configuration['collapsible'],
+    ];
+
+    $form['basic']['interactive_parent'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Allow parent items to be collapsible and selectable'),
+      '#default_value' => $this->configuration['interactive_parent'],
       '#states' => [
         'visible' => [
-          ':input[name="settings[dynamic_base_term]"]' => array('checked' => FALSE),
-        ]
+          [
+            ':input[name="settings[basic][collapsible]"]' => ['checked' => TRUE],
+          ],
+        ],
       ],
     ];
 
-    $form['use_image_style'] = [
+    $form['image'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Image settings'),
+    ];
+
+    $form['image']['notice'] = [
+      '#type' => 'markup',
+      '#markup' => $this->t('If you are displaying an image next to menu items you can choose the size for that image. You can do that by providing the image size in pixels or by using an image style.'),
+    ];
+
+    $form['image']['use_image_style'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use image style'),
       '#default_value' => $this->configuration['use_image_style'],
     ];
-    $form['image_height'] = [
+
+    $form['image']['image_height'] = [
       '#type' => 'number',
-      '#title' => $this->t('Image height'),
+      '#title' => $this->t('Image height (px)'),
       '#default_value' => $this->configuration['image_height'],
       '#states' => [
         'visible' => [
           [
-            ':input[name="settings[use_image_style]"]' => ['checked' => FALSE],
+            ':input[name="settings[image][use_image_style]"]' => ['checked' => FALSE],
           ],
         ],
       ],
     ];
-    $form['image_width'] = [
+
+    $form['image']['image_width'] = [
       '#type' => 'number',
-      '#title' => $this->t('Image width'),
+      '#title' => $this->t('Image width (px)'),
       '#default_value' => $this->configuration['image_width'],
       '#states' => [
         'visible' => [
           [
-            ':input[name="settings[use_image_style]"]' => ['checked' => FALSE],
+            ':input[name="settings[image][use_image_style]"]' => ['checked' => FALSE],
           ],
         ],
       ],
     ];
-    $form['image_style'] = [
+
+    $form['image']['image_style'] = [
       '#title' => $this->t('Image style'),
       '#type' => 'select',
       '#options' => $this->getImageStyleOptions(),
@@ -229,54 +236,80 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#states' => [
         'visible' => [
           [
-            ':input[name="settings[use_image_style]"]' => ['checked' => TRUE],
+            ':input[name="settings[image][use_image_style]"]' => ['checked' => TRUE],
           ],
         ],
       ],
-    ];
-    $form['collapsible'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Make menu collapsible'),
-      '#default_value' => $this->configuration['collapsible'],
     ];
 
-    $form['interactive_parent'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Make parent menu items interactive while collapsible'),
-      '#default_value' => $this->configuration['interactive_parent'],
+    $form['advanced'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced settings'),
+    ];
+
+    $form['advanced']['max_age'] = [
+      '#title' => $this->t('Cache'),
+      '#type' => 'select',
+      '#options' => [
+        '0' => 'No Caching',
+        '1800' => '30 Minutes',
+        '3600' => '1 Hour',
+        '21600' => '6 Hours',
+        '43200' => '12 Hours',
+        '86400' => '1 Day',
+        '604800' => '1 Week',
+        'PERMANENT' => 'Permanent',
+      ],
+      '#default_value' => $this->configuration['max_age'],
+      '#description' => $this->t('Set the max age the menu is allowed to be cached for.'),
+    ];
+
+    $form['advanced']['base_term'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Base term'),
+      '#size' => 20,
+      '#default_value' => $this->configuration['base_term'],
+      '#description' => $this->t('Enter a base term and menu items will only be generated for its children. You can enter term ID or term name. Leave empty to generate menu for the entire vocabulary.'),
       '#states' => [
         'visible' => [
-          [
-            ':input[name="settings[collapsible]"]' => ['checked' => TRUE],
-          ],
-        ],
+          ':input[name="settings[advanced][dynamic_base_term]"]' => array('checked' => FALSE),
+        ]
       ],
     ];
+
+    $form['advanced']['dynamic_base_term'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Dynamic Base term'),
+      '#default_value' => $this->configuration['dynamic_base_term'],
+      '#description' => $this->t('Automatically set the base term from taxonomy page. The base term is then set to the current term and menu items will only be generated for its children.'),
+    ];
+
     return $form;
   }
 
   /**
-   * Generate vocabulary select options.
+   * Generates vocabulary select options.
    */
   private function getVocabularyOptions() {
     $options = [];
     $vocabularies = taxonomy_vocabulary_get_names();
+
     foreach ($vocabularies as $vocabulary) {
       $fields = $this->entityFieldManager->getFieldDefinitions('taxonomy_term', $vocabulary);
-      $options[$vocabulary] = $vocabulary;
-      $suboptions = [];
-      $suboptions[$vocabulary . '|'] = $this->t('@vocabulary (with no image)', ['@vocabulary' => $vocabulary]);
+      $options[$vocabulary . '|'] = $this->t('@vocabulary (no image)', ['@vocabulary' => ucfirst($vocabulary)]);
+
       foreach ($fields as $field) {
         if ($field->getType() == 'image') {
           $field_name = $field->getName();
-          $suboptions[$vocabulary . '|' . $field_name] = $this->t('@vocabulary (with image: @image_field)', [
-            '@vocabulary' => $vocabulary,
+          $options[$vocabulary . '|' . $field_name] = $this->t('@vocabulary (with image: @image_field)', [
+            '@vocabulary' => ucfirst($vocabulary),
             '@image_field' => $field_name,
           ]);
         }
       }
-      $options[$vocabulary] = $suboptions;
+
     }
+
     return $options;
   }
 
@@ -284,18 +317,18 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $this->configuration['dynamic_block_title'] = $form_state->getValue('dynamic_block_title');
-    $this->configuration['vocabulary'] = $form_state->getValue('vocabulary');
-    $this->configuration['max_depth'] = $form_state->getValue('max_depth');
-    $this->configuration['dynamic_base_term'] = $form_state->getValue('dynamic_base_term');
-    $this->configuration['base_term'] = $form_state->getValue('base_term');
-    $this->configuration['max_age'] = $form_state->getValue('max_age');
-    $this->configuration['use_image_style'] = $form_state->getValue('use_image_style');
-    $this->configuration['image_height'] = $form_state->getValue('image_height');
-    $this->configuration['image_width'] = $form_state->getValue('image_width');
-    $this->configuration['image_style'] = $form_state->getValue('image_style');
-    $this->configuration['collapsible'] = $form_state->getValue('collapsible');
-    $this->configuration['interactive_parent'] = $form_state->getValue('interactive_parent');
+    $this->configuration['vocabulary'] = $form_state->getValue(['basic', 'vocabulary']);
+    $this->configuration['max_depth'] = $form_state->getValue(['basic', 'max_depth']);
+    $this->configuration['dynamic_block_title'] = $form_state->getValue(['basic', 'dynamic_block_title']);
+    $this->configuration['collapsible'] = $form_state->getValue(['basic', 'collapsible']);
+    $this->configuration['interactive_parent'] = $form_state->getValue(['basic', 'interactive_parent']);
+    $this->configuration['use_image_style'] = $form_state->getValue(['image', 'use_image_style']);
+    $this->configuration['image_height'] = $form_state->getValue(['image', 'image_height']);
+    $this->configuration['image_width'] = $form_state->getValue(['image', 'image_width']);
+    $this->configuration['image_style'] = $form_state->getValue(['image', 'image_style']);
+    $this->configuration['max_age'] = $form_state->getValue(['advanced', 'max_age']);
+    $this->configuration['base_term'] = $form_state->getValue(['advanced', 'base_term']);
+    $this->configuration['dynamic_base_term'] = $form_state->getValue(['advanced', 'dynamic_base_term']);
   }
 
   /**
@@ -305,10 +338,11 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_config = $this->configuration['vocabulary'];
     $vocabulary_config = explode('|', $vocabulary_config);
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
-    $max_depth = $this->configuration['max_depth'];
     $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term'], $this->configuration['dynamic_base_term']);
     $vocabulary_tree = $this->entityTypeManager->getStorage('taxonomy_term')
       ->loadTree($vocabulary, $base_term);
+
+    $max_depth = $this->configuration['max_depth'];
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
     $use_image_style = $this->configuration['use_image_style'];
     $image_height = $this->configuration['image_height'];
@@ -318,6 +352,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $max_age = $this->getMaxAge($this->configuration['max_age']);
 
     $vocabulary_tree_array = [];
+
     foreach ($vocabulary_tree as $item) {
       $vocabulary_tree_array[] = [
         'tid' => $item->tid,
@@ -355,70 +390,81 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   }
 
   /**
-   * Generate menu tree.
+   * Generates menu tree.
    */
   private function generateTree($array, $parent = 0) {
     $tree = [];
+
     foreach ($array as $item) {
       if (reset($item['parents']) == $parent) {
         $item['subitem'] = isset($item['subitem']) ? $item['subitem'] : $this->generateTree($array, $item['tid']);
         $tree[] = $item;
       }
     }
+
     return $tree;
   }
 
   /**
-   * Get term name.
+   * Gets term name.
    */
   private function getNameFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $term = Term::load($tid);
     $translation_languages = $term->getTranslationLanguages();
+
     if (isset($translation_languages[$language])) {
       $term_translated = $term->getTranslation($language);
       return $term_translated->getName();
     }
+
     return $term->getName();
   }
 
   /**
-   * Get term url.
+   * Gets term url.
    */
   private function getLinkFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $term = Term::load($tid);
     $translation_languages = $term->getTranslationLanguages();
+
     if (isset($translation_languages[$language])) {
       $term_translated = $term->getTranslation($language);
       return $term_translated->url();
     }
+
     return $term->url();
   }
 
   /**
-   * Get current route.
+   * Gets current route.
    */
   private function getCurrentRoute() {
     if ($this->currentRouteMatch->getRouteName() == 'entity.taxonomy_term.canonical') {
       return $this->currentRouteMatch->getRawParameter('taxonomy_term');
     }
+
     return NULL;
   }
 
   /**
-   * Get image from term.
+   * Gets image from term.
    */
   private function getImageFromTid($tid, $image_field, $image_style) {
     if (!is_numeric($tid) || $image_field == '') {
       return '';
     }
+
     $term = Term::load($tid);
     $image_field_name = $term->get($image_field)->getValue();
+
     if (!isset($image_field_name[0]['target_id'])) {
       return '';
     }
+
     $fid = $image_field_name[0]['target_id'];
+
     if ($fid) {
       $file = File::load($fid);
       if ($image_style) {
@@ -435,24 +481,28 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       }
       return $path;
     }
+
     return '';
   }
 
   /**
-   * Generate image style select options.
+   * Generates image style select options.
    */
   private function getImageStyleOptions() {
     $options = [];
     $styles = ImageStyle::loadMultiple();
+
     foreach ($styles as $style) {
+      /** @var ImageStyle $style */
       $style_name = $style->getName();
-      $options[$style_name] = $style_name;
+      $options[$style_name] = $style->label();
     }
+
     return $options;
   }
 
   /**
-   * Return base taxonomy term ID.
+   * Returns base taxonomy term ID.
    */
   private function getVocabularyBaseTerm($base_term, $dynamic_base_term) {
     if ($dynamic_base_term) {
@@ -480,7 +530,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   }
 
   /**
-   * Return Cache Max Age.
+   * Returns Cache Max Age.
    */
   public function getMaxAge($max_age) {
     if (!$max_age) {
