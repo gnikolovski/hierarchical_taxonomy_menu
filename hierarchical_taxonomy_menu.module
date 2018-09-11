@@ -14,7 +14,7 @@ function hierarchical_taxonomy_menu_theme($existing, $type, $theme, $path) {
       'variables' => [
         'menu_tree' => [],
         'route_tid' => NULL,
-        'vocabularies' => NULL,
+        'vocabulary' => NULL,
         'current_depth' => 0,
         'max_depth' => 0,
       ],
@@ -54,7 +54,7 @@ function hierarchical_taxonomy_menu_preprocess_block(&$variables) {
  * Implements hook_theme_suggestions_HOOK().
  */
 function hierarchical_taxonomy_menu_theme_suggestions_hierarchical_taxonomy_menu(array $variables) {
-  if (isset($variables['vocabularies'])) {
-    return ['hierarchical_taxonomy_menu__' . $variables['vocabularies']];
+  if (isset($variables['vocabulary'])) {
+    return ['hierarchical_taxonomy_menu__' . $variables['vocabulary']];
   }
 }
