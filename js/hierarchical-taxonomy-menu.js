@@ -14,7 +14,7 @@
     $('.hierarchical-taxonomy-menu ul.menu').not(':has(.menu-item--active)').hide();
 
     $('.menu-item.menu-item--expanded').each(function (i, obj) {
-      var self = $(this);
+      let self = $(this);
       if (self.find('a.active').length) {
         self.addClass('active');
 
@@ -29,7 +29,7 @@
     if (drupalSettings.interactiveParentMenu === 0) {
       $('.hierarchical-taxonomy-menu .menu-item--expanded > a').on('click', function (e) {
         e.preventDefault();
-        var isChildVisible = $(this).parent().children('.menu').is(':visible');
+        let isChildVisible = $(this).parent().children('.menu').is(':visible');
         if (isChildVisible) {
           $(this).parent().children('.menu').slideUp();
           $(this).parent().removeClass('active');
@@ -44,7 +44,7 @@
       $('.hierarchical-taxonomy-menu .menu-item--expanded > .parent-toggle').on('click', function (e) {
         e.preventDefault();
         $(this).closest('i').toggleClass("arrow-right arrow-down");
-        var isChildVisible = $(this).parent().children('.menu').is(':visible');
+        let isChildVisible = $(this).parent().children('.menu').is(':visible');
         if (isChildVisible) {
           $(this).parent().children('.menu').slideUp();
           $(this).parent().removeClass('active');
