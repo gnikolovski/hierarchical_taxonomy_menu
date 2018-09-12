@@ -361,7 +361,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'image' => $this->getImageFromTid($item->tid, $image_field, $image_style),
         'height' => $image_height != '' ? $image_height : 16,
         'width' => $image_width != '' ? $image_width : 16,
-        'interactive_parent' => $this->configuration['interactive_parent'],
+        'interactive_parent' => $this->configuration['collapsible'] ? $this->configuration['interactive_parent'] : 0,
       ];
     }
 
