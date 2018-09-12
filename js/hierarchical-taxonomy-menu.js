@@ -20,7 +20,7 @@
 
         if (drupalSettings.interactiveParentMenu) {
           if (!self.hasClass('menu-item--active')) {
-            self.children('i').toggleClass("arrow-right arrow-down");
+            self.children('i').toggleClass('arrow-right arrow-down');
           }
         }
       }
@@ -43,7 +43,7 @@
     else {
       $('.hierarchical-taxonomy-menu .menu-item--expanded > .parent-toggle').on('click', function (e) {
         e.preventDefault();
-        $(this).closest('i').toggleClass("arrow-right arrow-down");
+        $(this).closest('i').toggleClass('arrow-right arrow-down');
         let isChildVisible = $(this).parent().children('.menu').is(':visible');
         if (isChildVisible) {
           $(this).parent().children('.menu').slideUp();

@@ -273,7 +273,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#states' => [
         'visible' => [
           ':input[name="settings[advanced][dynamic_base_term]"]' => ['checked' => FALSE],
-        ]
+        ],
       ],
     ];
 
@@ -410,7 +410,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getNameFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
-    $term = Term::load($tid);
+    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
     $translation_languages = $term->getTranslationLanguages();
 
     if (isset($translation_languages[$language])) {
@@ -426,7 +426,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getLinkFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
-    $term = Term::load($tid);
+    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
     $translation_languages = $term->getTranslationLanguages();
 
     if (isset($translation_languages[$language])) {
@@ -456,7 +456,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       return '';
     }
 
-    $term = Term::load($tid);
+    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
     $image_field_name = $term->get($image_field)->getValue();
 
     if (!isset($image_field_name[0]['target_id'])) {
@@ -466,7 +466,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $fid = $image_field_name[0]['target_id'];
 
     if ($fid) {
-      $file = File::load($fid);
+      $file = $this->entityTypeManager->getStorage('file')->load($fid);
       if ($image_style) {
         $style = ImageStyle::load($image_style);
         if ($style) {
@@ -493,7 +493,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $styles = ImageStyle::loadMultiple();
 
     foreach ($styles as $style) {
-      /** @var ImageStyle $style */
+      /** @var \Drupal\image\Entity\ImageStyle $style */
       $style_name = $style->getName();
       $options[$style_name] = $style->label();
     }
