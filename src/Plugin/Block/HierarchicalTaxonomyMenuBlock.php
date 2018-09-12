@@ -118,7 +118,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'image_height' => 16,
       'image_width' => 16,
       'image_style' => '',
-      'max_age' => 'PERMANENT',
+      'max_age' => 0,
       'base_term' => '',
       'dynamic_base_term' => 0,
     ];
@@ -272,7 +272,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#description' => $this->t('Enter a base term and menu items will only be generated for its children. You can enter term ID or term name. Leave empty to generate menu for the entire vocabulary.'),
       '#states' => [
         'visible' => [
-          ':input[name="settings[advanced][dynamic_base_term]"]' => array('checked' => FALSE),
+          ':input[name="settings[advanced][dynamic_base_term]"]' => ['checked' => FALSE],
         ]
       ],
     ];
