@@ -5,7 +5,7 @@
   * Introduction
   * Requirements
   * Installation
-  * Using the module
+  * Configuration
   * Author
 
 ## INTRODUCTION
@@ -25,7 +25,7 @@ None.
 1. Install module as usual via Drupal UI, Drush or Composer
 2. Go to "Extend" and enable the Hierarchical Taxonomy Menu module.
 
-## USING THE MODULE
+## CONFIGURATION
 
 After you install the module go to the block layout '/admin/structure/block' and
 add 'Hierarchical Taxonomy Menu' block to any region you want. In block settings
@@ -37,11 +37,11 @@ case menu items will be generated only for its children terms.
 ### AUTHOR
 
 Goran Nikolovski  
-Website: (http://www.gorannikolovski.com)  
-Drupal: (https://www.drupal.org/user/3451979)  
-Email: nikolovski84@gmail.com  
+Website: http://gorannikolovski.com   
+Drupal.org: https://www.drupal.org/u/gnikolovski   
+Email: nikolovski84@gmail.com   
 
-Company: Studio Present, Subotica, Serbia  
-Website: (http://www.studiopresent.com)  
-Drupal: (https://www.drupal.org/studio-present)      
+Company: Studio Present, Subotica, Serbia   
+Website: http://www.studiopresent.com   
+Drupal: https://www.drupal.org/studio-present   
 Email: info@studiopresent.com
