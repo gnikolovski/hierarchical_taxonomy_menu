@@ -119,6 +119,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'max_age' => 0,
       'base_term' => '',
       'dynamic_base_term' => 0,
+      'show_count' => FALSE,
     ];
   }
 
@@ -282,6 +283,12 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#description' => $this->t('Automatically set the base term from taxonomy page. The base term is then set to the current term and menu items will only be generated for its children.'),
     ];
 
+    $form['advanced']['show_count'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show count of referencing nodes'),
+      '#default_value' => $this->configuration['show_count'],
+    ];
+
     return $form;
   }
 
@@ -327,6 +334,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['max_age'] = $form_state->getValue(['advanced', 'max_age']);
     $this->configuration['base_term'] = $form_state->getValue(['advanced', 'base_term']);
     $this->configuration['dynamic_base_term'] = $form_state->getValue(['advanced', 'dynamic_base_term']);
+    $this->configuration['show_count'] = $form_state->getValue(['advanced', 'show_count']);
   }
 
   /**
@@ -348,6 +356,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $image_style = $use_image_style == TRUE ? $this->configuration['image_style'] : NULL;
     $route_tid = $this->getCurrentRoute();
     $max_age = $this->getMaxAge($this->configuration['max_age']);
+    $interactive_parent = $this->configuration['collapsible'] ? $this->configuration['interactive_parent'] : 0;
+    $show_count = $this->configuration['show_count'];
 
     $vocabulary_tree_array = [];
 
@@ -361,7 +371,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'image' => $this->getImageFromTid($item->tid, $image_field, $image_style),
         'height' => $image_height != '' ? $image_height : 16,
         'width' => $image_width != '' ? $image_width : 16,
-        'interactive_parent' => $this->configuration['collapsible'] ? $this->configuration['interactive_parent'] : 0,
+        'interactive_parent' => $interactive_parent,
+        'show_count' => $show_count,
+        'nodes' => $show_count ? $this->getNodeIdsForTerm($item->tid) : [],
       ];
     }
 
@@ -543,6 +555,16 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     else {
       return $max_age;
     }
+  }
+
+  /**
+   * Gets nodes referencing the given term.
+   */
+  private function getNodeIdsForTerm($tid) {
+    return \Drupal::database()->select('taxonomy_index', 'ta')
+      ->fields('ta', [ 'nid' ])->distinct(TRUE)
+      ->condition('tid', $tid)
+      ->execute()->fetchCol();
   }
 
 }
