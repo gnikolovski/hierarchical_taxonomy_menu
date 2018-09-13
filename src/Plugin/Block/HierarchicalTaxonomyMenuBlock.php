@@ -4,6 +4,7 @@ namespace Drupal\hierarchical_taxonomy_menu\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -54,6 +55,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $currentRouteMatch;
 
   /**
+   * The the current primary database.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
    * Constructs a HierarchicalTaxonomyMenuBlock object.
    *
    * @param array $configuration
@@ -70,6 +78,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    *   The language manager service.
    * @param \Drupal\Core\Routing\ResettableStackedRouteMatchInterface $current_route_match
    *   The current route match service.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The the current primary database.
    */
   public function __construct(
     array $configuration,
@@ -78,13 +88,15 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     EntityFieldManagerInterface $entity_field_manager,
     EntityTypeManagerInterface $entity_type_manager,
     LanguageManagerInterface $language_manager,
-    ResettableStackedRouteMatchInterface $current_route_match
+    ResettableStackedRouteMatchInterface $current_route_match,
+    Connection $database
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityFieldManager = $entity_field_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->languageManager = $language_manager;
     $this->currentRouteMatch = $current_route_match;
+    $this->database = $database;
   }
 
   /**
@@ -98,7 +110,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $container->get('entity_field.manager'),
       $container->get('entity_type.manager'),
       $container->get('language_manager'),
-      $container->get('current_route_match')
+      $container->get('current_route_match'),
+      $container->get('database')
     );
   }
 
@@ -561,8 +574,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * Gets nodes referencing the given term.
    */
   private function getNodeIdsForTerm($tid) {
-    return \Drupal::database()->select('taxonomy_index', 'ta')
-      ->fields('ta', [ 'nid' ])->distinct(TRUE)
+    return $this->database->select('taxonomy_index', 'ta')
+      ->fields('ta', ['nid'])->distinct(TRUE)
       ->condition('tid', $tid)
       ->execute()->fetchCol();
   }
