@@ -6,7 +6,7 @@
 (function ($) {
   'use strict';
   $(document).ready(function () {
-    if (drupalSettings.collapsibleMenu === 0) {
+    if (drupalSettings.collapsibleMenu === false) {
       $('.hierarchical-taxonomy-menu .menu').css('display', 'block');
       return;
     }
@@ -26,7 +26,7 @@
       }
     });
 
-    if (drupalSettings.interactiveParentMenu === 0) {
+    if (drupalSettings.interactiveParentMenu === false) {
       $('.hierarchical-taxonomy-menu .menu-item--expanded > a').on('click', function (e) {
         e.preventDefault();
         let isChildVisible = $(this).parent().children('.menu').is(':visible');
