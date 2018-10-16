@@ -123,15 +123,15 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'vocabulary' => '',
       'max_depth' => 10,
       'dynamic_block_title' => FALSE,
-      'collapsible' => 0,
-      'interactive_parent' => 0,
+      'collapsible' => FALSE,
+      'interactive_parent' => FALSE,
       'use_image_style' => FALSE,
       'image_height' => 16,
       'image_width' => 16,
       'image_style' => '',
       'max_age' => 0,
       'base_term' => '',
-      'dynamic_base_term' => 0,
+      'dynamic_base_term' => FALSE,
       'show_count' => FALSE,
     ];
   }
