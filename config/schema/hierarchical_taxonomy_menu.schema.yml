@@ -17,6 +17,9 @@ block.settings.hierarchical_taxonomy_menu:
     interactive_parent:
       type: boolean
       label: 'Allow parent items to be collapsible and selectable'
+    hide_block:
+      type: boolean
+      label: 'Hide block if the output is empty'
     use_image_style:
       type: boolean
       label: 'Use image style'

@@ -125,6 +125,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'dynamic_block_title' => FALSE,
       'collapsible' => FALSE,
       'interactive_parent' => FALSE,
+      'hide_block' => TRUE,
       'use_image_style' => FALSE,
       'image_height' => 16,
       'image_width' => 16,
@@ -196,6 +197,12 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
           ],
         ],
       ],
+    ];
+
+    $form['basic']['hide_block'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide block if the output is empty'),
+      '#default_value' => $this->configuration['hide_block'],
     ];
 
     $form['image'] = [
@@ -340,6 +347,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['dynamic_block_title'] = $form_state->getValue(['basic', 'dynamic_block_title']);
     $this->configuration['collapsible'] = $form_state->getValue(['basic', 'collapsible']);
     $this->configuration['interactive_parent'] = $form_state->getValue(['basic', 'interactive_parent']);
+    $this->configuration['hide_block'] = $form_state->getValue(['basic', 'hide_block']);
     $this->configuration['use_image_style'] = $form_state->getValue(['image', 'use_image_style']);
     $this->configuration['image_height'] = $form_state->getValue(['image', 'image_height']);
     $this->configuration['image_width'] = $form_state->getValue(['image', 'image_width']);
@@ -360,6 +368,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term'], $this->configuration['dynamic_base_term']);
     $vocabulary_tree = $this->entityTypeManager->getStorage('taxonomy_term')
       ->loadTree($vocabulary, $base_term);
+
+    if ($this->configuration['hide_block'] && !$vocabulary_tree) {
+      return;
+    }
 
     $max_depth = $this->configuration['max_depth'];
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
