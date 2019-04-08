@@ -396,7 +396,12 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#theme' => 'hierarchical_taxonomy_menu',
       '#menu_tree' => $tree,
       '#route_tid' => $route_tid,
-      '#cache' => ['max-age' => $max_age],
+      '#cache' => [
+        'max-age' => $max_age,
+        'tags' => [
+          'taxonomy_term_list',
+        ],
+      ],
       '#current_depth' => 0,
       '#vocabulary' => $vocabulary,
       '#max_depth' => $max_depth,
