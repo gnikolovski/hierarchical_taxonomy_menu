@@ -6,12 +6,17 @@
 (function ($) {
   'use strict';
   $(document).ready(function () {
+
+    // If menu is not collapsible, then show all submenus and return.
     if (drupalSettings.collapsibleMenu === false) {
       $('.hierarchical-taxonomy-menu .menu').css('display', 'block');
       return;
     }
 
-    $('.hierarchical-taxonomy-menu ul.menu').not(':has(.menu-item--active)').hide();
+    if (drupalSettings.expandChildren === true) {
+      // Show all submenus which have list items with 'menu-item--active' class.
+      $('.hierarchical-taxonomy-menu ul.menu').has('.menu-item--active').show();
+    }
 
     $('.menu-item.menu-item--expanded').each(function (i, obj) {
       let self = $(this);
@@ -55,5 +60,6 @@
         }
       });
     }
+
   });
 })(jQuery);

@@ -124,6 +124,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'max_depth' => 10,
       'dynamic_block_title' => FALSE,
       'collapsible' => FALSE,
+      'expand_children' => FALSE,
       'interactive_parent' => FALSE,
       'hide_block' => TRUE,
       'use_image_style' => FALSE,
@@ -184,6 +185,19 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#type' => 'checkbox',
       '#title' => $this->t('Make the menu collapsed by default'),
       '#default_value' => $this->configuration['collapsible'],
+    ];
+
+    $form['basic']['expand_children'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Expand children of the current taxonomy term'),
+      '#default_value' => $this->configuration['expand_children'],
+      '#states' => [
+        'visible' => [
+          [
+            ':input[name="settings[basic][collapsible]"]' => ['checked' => TRUE],
+          ],
+        ],
+      ],
     ];
 
     $form['basic']['interactive_parent'] = [
@@ -346,6 +360,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['max_depth'] = $form_state->getValue(['basic', 'max_depth']);
     $this->configuration['dynamic_block_title'] = $form_state->getValue(['basic', 'dynamic_block_title']);
     $this->configuration['collapsible'] = $form_state->getValue(['basic', 'collapsible']);
+    $this->configuration['expand_children'] = $form_state->getValue(['basic', 'expand_children']);
     $this->configuration['interactive_parent'] = $form_state->getValue(['basic', 'interactive_parent']);
     $this->configuration['hide_block'] = $form_state->getValue(['basic', 'hide_block']);
     $this->configuration['use_image_style'] = $form_state->getValue(['image', 'use_image_style']);
@@ -423,6 +438,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         ],
         'drupalSettings' => [
           'collapsibleMenu' => $this->configuration['collapsible'],
+          'expandChildren' => $this->configuration['expand_children'],
           'interactiveParentMenu' => $this->configuration['interactive_parent'],
         ],
       ],

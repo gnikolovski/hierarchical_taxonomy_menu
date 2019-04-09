@@ -14,6 +14,9 @@ block.settings.hierarchical_taxonomy_menu:
     collapsible:
       type: boolean
       label: 'Make the menu collapsed by default'
+    expand_children:
+      type: boolean
+      label: 'Expand children of the current taxonomy term'
     interactive_parent:
       type: boolean
       label: 'Allow parent items to be collapsible and selectable'

@@ -16,6 +16,7 @@
   cursor: pointer;
 }
 
-.hierarchical-taxonomy-menu .menu {
+/*Hide all submenus by default.*/
+.hierarchical-taxonomy-menu ul.menu {
   display: none;
 }
