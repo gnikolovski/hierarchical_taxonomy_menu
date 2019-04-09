@@ -481,8 +481,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * Gets current route.
    */
   private function getCurrentRoute() {
-    if ($this->currentRouteMatch->getRouteName() == 'entity.taxonomy_term.canonical') {
-      return $this->currentRouteMatch->getRawParameter('taxonomy_term');
+    if ($term_id = $this->currentRouteMatch->getRawParameter('taxonomy_term')) {
+      return $term_id;
     }
 
     return NULL;
