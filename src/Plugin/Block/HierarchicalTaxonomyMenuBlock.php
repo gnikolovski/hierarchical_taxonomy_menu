@@ -428,6 +428,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'tags' => [
           'taxonomy_term_list',
         ],
+        'contexts' => [
+          'url.path',
+        ],
       ],
       '#current_depth' => 0,
       '#vocabulary' => $vocabulary,
