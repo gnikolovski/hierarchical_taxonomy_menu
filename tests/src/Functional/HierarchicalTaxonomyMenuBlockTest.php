@@ -78,7 +78,7 @@ class HierarchicalTaxonomyMenuBlockTest extends BrowserTestBase {
     $this->assertSession()->fieldExists('settings[basic][max_depth]');
     $this->assertSession()->fieldExists('settings[basic][dynamic_block_title]');
     $this->assertSession()->fieldExists('settings[basic][collapsible]');
-    $this->assertSession()->fieldExists('settings[basic][expand_children]');
+    $this->assertSession()->fieldExists('settings[basic][stay_open]');
     $this->assertSession()->fieldExists('settings[basic][interactive_parent]');
     $this->assertSession()->fieldExists('settings[image][use_image_style]');
     $this->assertSession()->fieldExists('settings[image][image_height]');
