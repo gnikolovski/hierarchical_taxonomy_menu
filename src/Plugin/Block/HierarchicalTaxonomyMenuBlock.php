@@ -190,7 +190,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $form['basic']['stay_open'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Stay open at the current taxonomy term'),
-      '#default_value' => $this->configuration['expand_children'],
+      '#default_value' => $this->configuration['stay_open'],
       '#states' => [
         'visible' => [
           [
