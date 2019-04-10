@@ -13,8 +13,8 @@
       return;
     }
 
+    // Show all submenus which have list items with 'menu-item--active' class.
     if (drupalSettings.expandChildren === true) {
-      // Show all submenus which have list items with 'menu-item--active' class.
       $('.hierarchical-taxonomy-menu ul.menu').has('.menu-item--active').show();
     }
 
