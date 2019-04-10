@@ -17,6 +17,6 @@
 }
 
 /*Hide all submenus by default.*/
-.hierarchical-taxonomy-menu ul.menu {
+.block-taxonomymenu__submenu.collapsed-submenu {
   display: none;
 }

@@ -17,6 +17,7 @@ function hierarchical_taxonomy_menu_theme($existing, $type, $theme, $path) {
         'vocabulary' => NULL,
         'current_depth' => 0,
         'max_depth' => 0,
+        'collapsible' => NULL,
       ],
     ],
   ];

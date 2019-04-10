@@ -7,14 +7,8 @@
   'use strict';
   $(document).ready(function () {
 
-    // If menu is not collapsible, then show all submenus and return.
-    if (drupalSettings.collapsibleMenu === false) {
-      $('.hierarchical-taxonomy-menu .menu').css('display', 'block');
-      return;
-    }
-
     // Show all submenus which have list items with 'menu-item--active' class.
-    if (drupalSettings.expandChildren === true) {
+    if (drupalSettings.stayOpen === true) {
       $('.hierarchical-taxonomy-menu ul.menu').has('.menu-item--active').show();
     }
 

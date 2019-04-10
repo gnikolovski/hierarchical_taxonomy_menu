@@ -124,7 +124,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'max_depth' => 10,
       'dynamic_block_title' => FALSE,
       'collapsible' => FALSE,
-      'expand_children' => FALSE,
+      'stay_open' => FALSE,
       'interactive_parent' => FALSE,
       'hide_block' => TRUE,
       'use_image_style' => FALSE,
@@ -187,9 +187,9 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#default_value' => $this->configuration['collapsible'],
     ];
 
-    $form['basic']['expand_children'] = [
+    $form['basic']['stay_open'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Expand children of the current taxonomy term'),
+      '#title' => $this->t('Stay open at the current taxonomy term'),
       '#default_value' => $this->configuration['expand_children'],
       '#states' => [
         'visible' => [
@@ -360,7 +360,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['max_depth'] = $form_state->getValue(['basic', 'max_depth']);
     $this->configuration['dynamic_block_title'] = $form_state->getValue(['basic', 'dynamic_block_title']);
     $this->configuration['collapsible'] = $form_state->getValue(['basic', 'collapsible']);
-    $this->configuration['expand_children'] = $form_state->getValue(['basic', 'expand_children']);
+    $this->configuration['stay_open'] = $form_state->getValue(['basic', 'stay_open']);
     $this->configuration['interactive_parent'] = $form_state->getValue(['basic', 'interactive_parent']);
     $this->configuration['hide_block'] = $form_state->getValue(['basic', 'hide_block']);
     $this->configuration['use_image_style'] = $form_state->getValue(['image', 'use_image_style']);
@@ -432,13 +432,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#current_depth' => 0,
       '#vocabulary' => $vocabulary,
       '#max_depth' => $max_depth,
+      '#collapsible' => $this->configuration['collapsible'],
       '#attached' => [
         'library' => [
           'hierarchical_taxonomy_menu/hierarchical_taxonomy_menu',
         ],
         'drupalSettings' => [
-          'collapsibleMenu' => $this->configuration['collapsible'],
-          'expandChildren' => $this->configuration['expand_children'],
+          'stayOpen' => $this->configuration['stay_open'],
           'interactiveParentMenu' => $this->configuration['interactive_parent'],
         ],
       ],
