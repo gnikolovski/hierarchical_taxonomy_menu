@@ -126,7 +126,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'collapsible' => FALSE,
       'stay_open' => FALSE,
       'interactive_parent' => FALSE,
-      'hide_block' => TRUE,
+      'hide_block' => FALSE,
       'use_image_style' => FALSE,
       'image_height' => 16,
       'image_width' => 16,
