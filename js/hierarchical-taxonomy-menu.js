@@ -3,7 +3,7 @@
  * Contains hierarchical-taxonomy-menu.js.
  */
 
-(function ($) {
+(function ($, Drupal, drupalSettings) {
   'use strict';
   $(document).ready(function () {
 
@@ -56,4 +56,4 @@
     }
 
   });
-})(jQuery);
+})(jQuery, Drupal, drupalSettings);
