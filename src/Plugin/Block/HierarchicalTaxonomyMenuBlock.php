@@ -404,6 +404,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     foreach ($vocabulary_tree as $item) {
       $vocabulary_tree_array[] = [
         'tid' => $item->tid,
+        'status' => $item->status,
         'name' => $this->getNameFromTid($item->tid),
         'url' => $this->getLinkFromTid($item->tid),
         'parents' => $item->parents,
@@ -455,7 +456,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $tree = [];
 
     foreach ($array as $item) {
-      if (reset($item['parents']) == $parent) {
+      if (reset($item['parents']) == $parent && $item['status'] == 1) {
         $item['subitem'] = isset($item['subitem']) ? $item['subitem'] : $this->generateTree($array, $item['tid']);
         $tree[] = $item;
       }
