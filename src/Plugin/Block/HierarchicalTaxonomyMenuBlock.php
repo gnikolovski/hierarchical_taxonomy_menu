@@ -486,15 +486,17 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getLinkFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
+    /** @var \Drupal\taxonomy\TermInterface $term */
     $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
     $translation_languages = $term->getTranslationLanguages();
 
     if (isset($translation_languages[$language])) {
+      /** @var \Drupal\taxonomy\TermInterface $term_translated */
       $term_translated = $term->getTranslation($language);
-      return $term_translated->url();
+      return $term_translated->toUrl();
     }
 
-    return $term->url();
+    return $term->toUrl();
   }
 
   /**
