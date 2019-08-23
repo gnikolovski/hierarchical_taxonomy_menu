@@ -338,7 +338,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $options[$vocabulary . '|'] = $this->t('@vocabulary (no image)', ['@vocabulary' => ucfirst($vocabulary)]);
 
       foreach ($fields as $field) {
-        if ($field->getType() == 'image') {
+        if ($field->getType() == 'image' || $this->isMediaImage($field)) {
           $field_name = $field->getName();
           $options[$vocabulary . '|' . $field_name] = $this->t('@vocabulary (with image: @image_field)', [
             '@vocabulary' => ucfirst($vocabulary),
@@ -350,6 +350,25 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     }
 
     return $options;
+  }
+
+  /*
+   * Whether a field is media type of image.
+   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field
+   *   A field to check.
+   *
+   * @return bool
+   *   TRUE if this field is media type of image.
+   */
+  protected function isMediaImage($field) {
+    if ($field->getType() == 'entity_reference' && $field->getSetting('target_type') == 'media') {
+      if (isset($field->getSetting('handler_settings')['target_bundles']['image'])) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**
@@ -520,12 +539,33 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
 
     $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
     $image_field_name = $term->get($image_field)->getValue();
+    $image_field_type = $term->get($image_field)->getFieldDefinition()->getType();
 
     if (!isset($image_field_name[0]['target_id'])) {
       return '';
     }
 
-    $fid = $image_field_name[0]['target_id'];
+    if ($image_field_type == 'image') {
+      $fid = $image_field_name[0]['target_id'];
+    } else {
+      // A field of media type.
+      $fid = FALSE;
+      foreach ($image_field_name as $value) {
+        $media = $value['target_id'];
+        $media = $this->entityTypeManager->getStorage('media')->load($media);
+        if ($media && $media->bundle() == 'image') {
+          foreach ($media->referencedEntities() as $item) {
+            if ($item->getEntityTypeId() == 'file') {
+              $fid = $item->id();
+              break;
+            }
+          }
+        }
+        if ($fid) {
+          break;
+        }
+      }
+    }
 
     if ($fid) {
       $file = $this->entityTypeManager->getStorage('file')->load($fid);
