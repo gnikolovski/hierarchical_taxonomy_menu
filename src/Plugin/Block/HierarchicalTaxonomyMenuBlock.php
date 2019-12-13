@@ -7,6 +7,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -352,7 +353,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     return $options;
   }
 
-  /*
+  /**
    * Whether a field is media type of image.
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field
@@ -361,7 +362,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * @return bool
    *   TRUE if this field is media type of image.
    */
-  protected function isMediaImage($field) {
+  protected function isMediaImage(FieldDefinitionInterface $field) {
     if ($field->getType() == 'entity_reference' && $field->getSetting('target_type') == 'media') {
       if (isset($field->getSetting('handler_settings')['target_bundles']['image'])) {
         return TRUE;
@@ -547,7 +548,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
 
     if ($image_field_type == 'image') {
       $fid = $image_field_name[0]['target_id'];
-    } else {
+    }
+    else {
       // A field of media type.
       $fid = FALSE;
       foreach ($image_field_name as $value) {
