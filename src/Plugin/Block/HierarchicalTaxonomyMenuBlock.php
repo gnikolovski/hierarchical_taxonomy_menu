@@ -122,7 +122,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   public function defaultConfiguration() {
     return [
       'vocabulary' => '',
-      'max_depth' => 10,
+      'max_depth' => 100,
       'dynamic_block_title' => FALSE,
       'collapsible' => FALSE,
       'stay_open' => FALSE,
@@ -171,7 +171,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         '7' => '7',
         '8' => '8',
         '9' => '9',
-        '10' => $this->t('Unlimited'),
+        '10' => '10',
+        '100' => $this->t('Unlimited'),
       ],
       '#default_value' => $this->configuration['max_depth'],
     ];
