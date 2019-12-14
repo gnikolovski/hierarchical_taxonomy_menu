@@ -6,11 +6,11 @@ use Drupal\Tests\block\Traits\BlockCreationTrait;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- * Tests the Hierarchical Taxonomy Menu block.
+ * Tests the Hierarchical Taxonomy Menu.
  *
  * @group hierarchical_taxonomy_menu
  */
-class HierarchicalTaxonomyMenuBlockTest extends BrowserTestBase {
+class HierarchicalTaxonomyMenuTest extends BrowserTestBase {
 
   use BlockCreationTrait;
 
@@ -38,27 +38,28 @@ class HierarchicalTaxonomyMenuBlockTest extends BrowserTestBase {
     ]);
 
     $this->drupalLogin($admin_user);
+  }
 
+  /**
+   * Test that the block is available.
+   */
+  public function testBlockAvailability() {
+    $this->drupalGet('/admin/structure/block');
+    $this->clickLink('Place block');
+    $this->assertSession()->pageTextContains('Hierarchical Taxonomy Menu');
+    $this->assertSession()->linkByHrefExists('admin/structure/block/add/hierarchical_taxonomy_menu/', 0);
+  }
+
+  /**
+   * Test that the block can be placed.
+   */
+  public function testBlockPlacement() {
     $this->drupalPlaceBlock('hierarchical_taxonomy_menu', [
       'region' => 'content',
       'label' => 'Hierarchical Taxonomy Menu',
       'id' => 'hierarchicaltaxonomymenu',
     ]);
-  }
 
-  /**
-   * Test that the Hierarchical Taxonomy Menu block is available.
-   */
-  public function testHierarchicalTaxonomyMenuBlockAvailability() {
-    $this->drupalGet('/admin/structure/block');
-    $this->clickLink('Place block');
-    $this->assertSession()->linkByHrefExists('admin/structure/block/add/hierarchical_taxonomy_menu/', 0);
-  }
-
-  /**
-   * Test that the Hierarchical Taxonomy Menu block can be placed.
-   */
-  public function testHierarchicalTaxonomyMenuBlockPlacement() {
     $this->drupalGet('admin/structure/block');
     $this->assertSession()->pageTextContains('Hierarchical Taxonomy Menu');
 
@@ -67,28 +68,20 @@ class HierarchicalTaxonomyMenuBlockTest extends BrowserTestBase {
   }
 
   /**
-   * Test the Hierarchical Taxonomy Menu block config form integrity.
+   * Test the block config form integrity.
    */
-  public function testHierarchicalTaxonomyMenuBlockConfigForm() {
+  public function testBlockConfigForm() {
+    $this->drupalPlaceBlock('hierarchical_taxonomy_menu', [
+      'region' => 'content',
+      'label' => 'Hierarchical Taxonomy Menu',
+      'id' => 'hierarchicaltaxonomymenu',
+    ]);
+
     $this->drupalGet('admin/structure/block/manage/hierarchicaltaxonomymenu');
     $this->assertSession()->statusCodeEquals(200);
 
-    $this->assertSession()->fieldExists('settings[label]');
     $this->assertSession()->fieldExists('settings[basic][vocabulary]');
     $this->assertSession()->fieldExists('settings[basic][max_depth]');
-    $this->assertSession()->fieldExists('settings[basic][dynamic_block_title]');
-    $this->assertSession()->fieldExists('settings[basic][collapsible]');
-    $this->assertSession()->fieldExists('settings[basic][stay_open]');
-    $this->assertSession()->fieldExists('settings[basic][interactive_parent]');
-    $this->assertSession()->fieldExists('settings[image][use_image_style]');
-    $this->assertSession()->fieldExists('settings[image][image_height]');
-    $this->assertSession()->fieldExists('settings[image][image_width]');
-    $this->assertSession()->fieldExists('settings[image][image_style]');
-    $this->assertSession()->fieldExists('settings[advanced][max_age]');
-    $this->assertSession()->fieldExists('settings[advanced][base_term]');
-    $this->assertSession()->fieldExists('settings[advanced][dynamic_base_term]');
-    $this->assertSession()->fieldExists('settings[advanced][show_count]');
-
     $this->assertSession()->optionExists('edit-settings-basic-max-depth', '0');
     $this->assertSession()->optionExists('edit-settings-basic-max-depth', '1');
     $this->assertSession()->optionExists('edit-settings-basic-max-depth', '2');
@@ -100,11 +93,22 @@ class HierarchicalTaxonomyMenuBlockTest extends BrowserTestBase {
     $this->assertSession()->optionExists('edit-settings-basic-max-depth', '8');
     $this->assertSession()->optionExists('edit-settings-basic-max-depth', '9');
     $this->assertSession()->optionExists('edit-settings-basic-max-depth', '10');
+    $this->assertSession()->optionExists('edit-settings-basic-max-depth', '100');
+    $this->assertSession()->fieldExists('settings[basic][dynamic_block_title]');
+    $this->assertSession()->fieldExists('settings[basic][collapsible]');
+    $this->assertSession()->fieldExists('settings[basic][stay_open]');
+    $this->assertSession()->fieldExists('settings[basic][interactive_parent]');
+    $this->assertSession()->fieldExists('settings[basic][hide_block]');
 
+    $this->assertSession()->fieldExists('settings[image][use_image_style]');
+    $this->assertSession()->fieldExists('settings[image][image_style]');
+    $this->assertSession()->fieldExists('settings[image][image_height]');
+    $this->assertSession()->fieldExists('settings[image][image_width]');
     $this->assertSession()->optionExists('edit-settings-image-image-style', 'large');
     $this->assertSession()->optionExists('edit-settings-image-image-style', 'medium');
     $this->assertSession()->optionExists('edit-settings-image-image-style', 'thumbnail');
 
+    $this->assertSession()->fieldExists('settings[advanced][max_age]');
     $this->assertSession()->optionExists('edit-settings-advanced-max-age', '0');
     $this->assertSession()->optionExists('edit-settings-advanced-max-age', '1800');
     $this->assertSession()->optionExists('edit-settings-advanced-max-age', '3600');
@@ -113,6 +117,9 @@ class HierarchicalTaxonomyMenuBlockTest extends BrowserTestBase {
     $this->assertSession()->optionExists('edit-settings-advanced-max-age', '86400');
     $this->assertSession()->optionExists('edit-settings-advanced-max-age', '604800');
     $this->assertSession()->optionExists('edit-settings-advanced-max-age', 'PERMANENT');
+    $this->assertSession()->fieldExists('settings[advanced][base_term]');
+    $this->assertSession()->fieldExists('settings[advanced][dynamic_base_term]');
+    $this->assertSession()->fieldExists('settings[advanced][show_count]');
   }
 
 }
