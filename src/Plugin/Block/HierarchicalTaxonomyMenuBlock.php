@@ -425,7 +425,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     foreach ($vocabulary_tree as $item) {
       $vocabulary_tree_array[] = [
         'tid' => $item->tid,
-        'status' => $item->status,
+        'status' => $this->getStatusFromTid($item->tid),
         'name' => $this->getNameFromTid($item->tid),
         'url' => $this->getLinkFromTid($item->tid),
         'parents' => $item->parents,
@@ -500,6 +500,22 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     }
 
     return $term->getName();
+  }
+
+  /**
+   * Gets term status.
+   */
+  private function getStatusFromTid($tid) {
+    $language = $this->languageManager->getCurrentLanguage()->getId();
+    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+    $translation_languages = $term->getTranslationLanguages();
+
+    if (isset($translation_languages[$language])) {
+      $term_translated = $term->getTranslation($language);
+      return $term_translated->status->value;
+    }
+
+    return $term->status->value;
   }
 
   /**
