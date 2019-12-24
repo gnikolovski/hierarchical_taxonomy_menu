@@ -63,6 +63,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $database;
 
   /**
+   * An array to hold the terms cache.
+   *
+   * @var array
+   */
+  static $terms = [];
+
+  /**
    * Constructs a HierarchicalTaxonomyMenuBlock object.
    *
    * @param array $configuration
@@ -491,7 +498,15 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getNameFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
-    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+
+    if (isset(self::$terms[$tid])) {
+      $term = self::$terms[$tid];
+    }
+    else {
+      $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+      self::$terms[$tid] = $term;
+    }
+
     $translation_languages = $term->getTranslationLanguages();
 
     if (isset($translation_languages[$language])) {
@@ -507,7 +522,15 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getStatusFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
-    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+
+    if (isset(self::$terms[$tid])) {
+      $term = self::$terms[$tid];
+    }
+    else {
+      $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+      self::$terms[$tid] = $term;
+    }
+
     $translation_languages = $term->getTranslationLanguages();
 
     if (isset($translation_languages[$language])) {
@@ -523,8 +546,15 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getLinkFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
-    /** @var \Drupal\taxonomy\TermInterface $term */
-    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+
+    if (isset(self::$terms[$tid])) {
+      $term = self::$terms[$tid];
+    }
+    else {
+      $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+      self::$terms[$tid] = $term;
+    }
+
     $translation_languages = $term->getTranslationLanguages();
 
     if (isset($translation_languages[$language])) {
@@ -555,7 +585,14 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       return '';
     }
 
-    $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+    if (isset(self::$terms[$tid])) {
+      $term = self::$terms[$tid];
+    }
+    else {
+      $term = $this->entityTypeManager->getStorage('taxonomy_term')->load($tid);
+      self::$terms[$tid] = $term;
+    }
+
     $image_field_name = $term->get($image_field)->getValue();
     $image_field_type = $term->get($image_field)->getFieldDefinition()->getType();
 
