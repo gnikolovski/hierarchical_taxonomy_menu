@@ -50,8 +50,16 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
 
     $vocabulary = $this->createVocabulary();
 
-    $parent_term = $this->createTerm($vocabulary, ['name' => 'Parent', 'langcode' => 'en', 'status' => TRUE]);
-    $child_term = $this->createTerm($vocabulary, ['name' => 'Child', 'langcode' => 'en', 'status' => TRUE]);
+    $parent_term = $this->createTerm($vocabulary, [
+      'name' => 'Parent',
+      'langcode' => 'en',
+      'status' => TRUE,
+    ]);
+    $child_term = $this->createTerm($vocabulary, [
+      'name' => 'Child',
+      'langcode' => 'en',
+      'status' => TRUE,
+    ]);
     $child_term->parent = $parent_term->id();
     $child_term->save();
 

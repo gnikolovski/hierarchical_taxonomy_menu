@@ -344,4 +344,92 @@ class HierarchicalTaxonomyMenuAdvancedTest extends WebDriverTestBase {
     }
   }
 
+  /**
+   * Test recursively count of referencing nodes.
+   */
+  public function testRecursivelyCountOfReferencingNodes() {
+    $this->block->set('settings', [
+      'label' => 'Hierarchical Taxonomy Menu',
+      'label_display' => 'visible',
+      'vocabulary' => $this->vocabulary->id() . '|',
+      'show_count' => TRUE,
+      'calculate_count_recursively' => TRUE,
+    ]);
+    $this->block->save();
+
+    $this->drupalGet('<front>');
+
+    for ($i = 1; $i < 4; $i++) {
+      $this->assertSession()->pageTextContains('Parent term ' . $i . ' [0]');
+
+      for ($n = 1; $n < 12; $n++) {
+        $this->assertSession()->pageTextContains('Child term ' . $i . '-' . $n . ' [0]');
+      }
+    }
+
+    $term = Term::load(1);
+    $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Article 1',
+      'field_tags' => $term,
+    ]);
+
+    $term = Term::load(2);
+    $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Article 2',
+      'field_tags' => $term,
+    ]);
+
+    $term = Term::load(3);
+    $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Article 3',
+      'field_tags' => $term,
+    ]);
+    $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Article 4',
+      'field_tags' => $term,
+    ]);
+
+    $term = Term::load(4);
+    $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Article 5',
+      'field_tags' => $term,
+    ]);
+    $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Article 6',
+      'field_tags' => $term,
+    ]);
+
+    $this->drupalGet('<front>');
+
+    for ($i = 1; $i < 4; $i++) {
+      if ($i == 1) {
+        $this->assertSession()->pageTextContains('Parent term ' . $i . ' [6]');
+      }
+      else {
+        $this->assertSession()->pageTextContains('Parent term ' . $i . ' [0]');
+      }
+
+      for ($n = 1; $n < 12; $n++) {
+        if ($i == 1 && $n == 1) {
+          $this->assertSession()->pageTextContains('Child term ' . $i . '-' . $n . ' [5]');
+        }
+        elseif ($i == 1 && $n == 2) {
+          $this->assertSession()->pageTextContains('Child term ' . $i . '-' . $n . ' [4]');
+        }
+        elseif ($i == 1 && $n == 3) {
+          $this->assertSession()->pageTextContains('Child term ' . $i . '-' . $n . ' [2]');
+        }
+        else {
+          $this->assertSession()->pageTextContains('Child term ' . $i . '-' . $n . ' [0]');
+        }
+      }
+    }
+  }
+
 }

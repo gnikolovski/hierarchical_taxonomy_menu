@@ -47,3 +47,6 @@ block.settings.hierarchical_taxonomy_menu:
     show_count:
       type: boolean
       label: 'Show count of referencing nodes'
+    calculate_count_recursively:
+      type: boolean
+      label: 'Calculate count recursively'

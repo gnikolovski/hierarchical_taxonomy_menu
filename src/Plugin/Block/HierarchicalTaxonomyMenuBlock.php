@@ -67,7 +67,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    *
    * @var array
    */
-  static $terms = [];
+  protected static $terms = [];
 
   /**
    * Constructs a HierarchicalTaxonomyMenuBlock object.
@@ -143,6 +143,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'base_term' => '',
       'dynamic_base_term' => FALSE,
       'show_count' => FALSE,
+      'calculate_count_recursively' => FALSE,
     ];
   }
 
@@ -332,6 +333,17 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#default_value' => $this->configuration['show_count'],
     ];
 
+    $form['advanced']['calculate_count_recursively'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Calculate count recursively'),
+      '#default_value' => $this->configuration['calculate_count_recursively'],
+      '#states' => [
+        'visible' => [
+          ':input[name="settings[advanced][show_count]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
     return $form;
   }
 
@@ -399,6 +411,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['base_term'] = $form_state->getValue(['advanced', 'base_term']);
     $this->configuration['dynamic_base_term'] = $form_state->getValue(['advanced', 'dynamic_base_term']);
     $this->configuration['show_count'] = $form_state->getValue(['advanced', 'show_count']);
+    $this->configuration['calculate_count_recursively'] = $form_state->getValue(['advanced', 'calculate_count_recursively']);
   }
 
   /**
@@ -442,7 +455,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'width' => $image_width != '' ? $image_width : 16,
         'interactive_parent' => $interactive_parent,
         'show_count' => $show_count,
-        'nodes' => $show_count ? $this->getNodeIdsForTerm($item->tid) : [],
+        'nodes' => $show_count ? $this->getNodeIds($item->tid, $vocabulary, $this->configuration['calculate_count_recursively']) : [],
       ];
     }
 
@@ -702,6 +715,28 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     }
     else {
       return $max_age;
+    }
+  }
+
+  /**
+   * Gets all nodes referencing the given term.
+   */
+  private function getNodeIds($tid, $vocabulary, $calculate_count_recursively) {
+    if (!$calculate_count_recursively) {
+      return $this->getNodeIdsForTerm($tid);
+    }
+    else {
+      $node_ids = $this->getNodeIdsForTerm($tid);
+
+      $child_tids = $this->entityTypeManager
+        ->getStorage('taxonomy_term')
+        ->loadTree($vocabulary, $tid);
+
+      foreach ($child_tids as $child_tid) {
+        $node_ids = array_merge($node_ids, $this->getNodeIdsForTerm($child_tid->tid));
+      }
+
+      return $node_ids;
     }
   }
 
