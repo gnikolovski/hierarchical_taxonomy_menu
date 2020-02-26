@@ -170,9 +170,9 @@ class HierarchicalTaxonomyMenuImageTest extends BrowserTestBase {
     ])->save();
 
     $this->drupalGet('<front>');
-    $image1 = $block_element = $this->getSession()->getPage()->find('css', '.hierarchical-taxonomy-menu li:first-child img');
+    $image1 = $this->getSession()->getPage()->find('css', '.hierarchical-taxonomy-menu li:first-child img');
     $this->assertContains('files/styles/medium', $image1->getAttribute('src'));
-    $image2 = $block_element = $this->getSession()->getPage()->find('css', '.hierarchical-taxonomy-menu li:last-child img');
+    $image2 = $this->getSession()->getPage()->find('css', '.hierarchical-taxonomy-menu li:last-child img');
     $this->assertContains('files/styles/medium', $image2->getAttribute('src'));
   }
 
