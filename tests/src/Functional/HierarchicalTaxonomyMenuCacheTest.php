@@ -127,7 +127,14 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
   public function testBlockCacheTagsAnonymous() {
     $this->drupalGet('<front>');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertCacheTags(array_merge($this->block->getCacheTags(), ['block_view', 'config:block_list', 'config:system.site', 'http_response', 'rendered', 'taxonomy_term_list']));
+    $this->assertCacheTags(array_merge($this->block->getCacheTags(), [
+      'block_view',
+      'config:block_list',
+      'config:system.site',
+      'http_response',
+      'rendered',
+      'taxonomy_term_list',
+    ]));
     $this->assertContains('Term 1', $block_element->getText());
     $this->assertContains('Term 2', $block_element->getText());
 
@@ -141,7 +148,14 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
 
     $this->drupalGet('<front>');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertCacheTags(array_merge($this->block->getCacheTags(), ['block_view', 'config:block_list', 'config:system.site', 'http_response', 'rendered', 'taxonomy_term_list']));
+    $this->assertCacheTags(array_merge($this->block->getCacheTags(), [
+      'block_view',
+      'config:block_list',
+      'config:system.site',
+      'http_response',
+      'rendered',
+      'taxonomy_term_list',
+    ]));
     $this->assertContains('Renamed 1', $block_element->getText());
     $this->assertContains('Renamed 2', $block_element->getText());
   }
@@ -154,7 +168,15 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
 
     $this->drupalGet('<front>');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertCacheTags(array_merge($this->block->getCacheTags(), ['block_view', 'config:block_list', 'http_response', 'rendered', 'taxonomy_term_list', 'user_view', 'user:' . $this->user->id()]));
+    $this->assertCacheTags(array_merge($this->block->getCacheTags(), [
+      'block_view',
+      'config:block_list',
+      'http_response',
+      'rendered',
+      'taxonomy_term_list',
+      'user_view',
+      'user:' . $this->user->id(),
+    ]));
     $this->assertContains('Term 1', $block_element->getText());
     $this->assertContains('Term 2', $block_element->getText());
 
@@ -168,7 +190,15 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
 
     $this->drupalGet('<front>');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertCacheTags(array_merge($this->block->getCacheTags(), ['block_view', 'config:block_list', 'http_response', 'rendered', 'taxonomy_term_list', 'user_view', 'user:' . $this->user->id()]));
+    $this->assertCacheTags(array_merge($this->block->getCacheTags(), [
+      'block_view',
+      'config:block_list',
+      'http_response',
+      'rendered',
+      'taxonomy_term_list',
+      'user_view',
+      'user:' . $this->user->id(),
+    ]));
     $this->assertContains('Re-renamed 1', $block_element->getText());
     $this->assertContains('Re-renamed 2', $block_element->getText());
   }
