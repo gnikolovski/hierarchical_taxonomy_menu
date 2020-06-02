@@ -194,8 +194,8 @@ class HierarchicalTaxonomyMenuImageTest extends BrowserTestBase {
 
     $this->drupalGet('<front>');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertContains('Term 1', $block_element->getText());
-    $this->assertContains('Term 2', $block_element->getText());
+    $this->assertStringContainsString('Term 1', $block_element->getText());
+    $this->assertStringContainsString('Term 2', $block_element->getText());
     $this->assertSession()->elementNotExists('css', '.hierarchical-taxonomy-menu li:first-child img');
     $this->assertSession()->elementNotExists('css', '.hierarchical-taxonomy-menu li:last-child img');
   }
