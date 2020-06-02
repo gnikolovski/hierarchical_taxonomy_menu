@@ -101,13 +101,13 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
   public function testTranslatedBlockContent() {
     $this->drupalGet('taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertContains('Parent', $block_element->getText());
-    $this->assertContains('Child', $block_element->getText());
+    $this->assertStringContainsString('Parent', $block_element->getText());
+    $this->assertStringContainsString('Child', $block_element->getText());
 
     $this->drupalGet('sr/taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertContains('Roditelj', $block_element->getText());
-    $this->assertContains('Dete', $block_element->getText());
+    $this->assertStringContainsString('Roditelj', $block_element->getText());
+    $this->assertStringContainsString('Dete', $block_element->getText());
   }
 
   /**
