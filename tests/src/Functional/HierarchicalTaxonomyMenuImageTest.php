@@ -33,6 +33,11 @@ class HierarchicalTaxonomyMenuImageTest extends BrowserTestBase {
   ];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * The block.
    *
    * @var \Drupal\block\Entity\Block

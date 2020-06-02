@@ -35,6 +35,11 @@ class HierarchicalTaxonomyMenuAdvancedTest extends WebDriverTestBase {
   ];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * The vocabulary.
    *
    * @var \Drupal\taxonomy\VocabularyInterface
