@@ -116,27 +116,27 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
   public function testTranslatedBlockContentWithDisabledChild() {
     $this->drupalGet('taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertContains('Parent', $block_element->getText());
-    $this->assertContains('Child', $block_element->getText());
+    $this->assertStringContainsString('Parent', $block_element->getText());
+    $this->assertStringContainsString('Child', $block_element->getText());
 
     $parent_term = Term::load(1);
     $parent_term->status = FALSE;
     $parent_term->save();
     $this->drupalGet('taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertNotContains('Parent', $block_element->getText());
+    $this->assertStringNotContainsString('Parent', $block_element->getText());
 
     $child_term = Term::load(2);
     $child_term->status = FALSE;
     $child_term->save();
     $this->drupalGet('taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertNotContains('Child', $block_element->getText());
+    $this->assertStringNotContainsString('Child', $block_element->getText());
 
     $this->drupalGet('sr/taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertContains('Roditelj', $block_element->getText());
-    $this->assertContains('Dete', $block_element->getText());
+    $this->assertStringContainsString('Roditelj', $block_element->getText());
+    $this->assertStringContainsString('Dete', $block_element->getText());
 
     $parent_term = Term::load(1);
     $parent_term_sr = \Drupal::service('entity.repository')
@@ -145,7 +145,7 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
     $parent_term_sr->save();
     $this->drupalGet('sr/taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertNotContains('Roditelj', $block_element->getText());
+    $this->assertStringNotContainsString('Roditelj', $block_element->getText());
 
     $child_term = Term::load(2);
     $child_term_sr = \Drupal::service('entity.repository')
@@ -154,7 +154,7 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
     $child_term_sr->save();
     $this->drupalGet('sr/taxonomy/term/1');
     $block_element = $this->getSession()->getPage()->find('css', '.block-taxonomymenu__menu');
-    $this->assertNotContains('Dete', $block_element->getText());
+    $this->assertStringNotContainsString('Dete', $block_element->getText());
   }
 
   /**

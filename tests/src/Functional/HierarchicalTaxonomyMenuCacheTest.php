@@ -140,8 +140,8 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
       'rendered',
       'taxonomy_term_list',
     ]));
-    $this->assertContains('Term 1', $block_element->getText());
-    $this->assertContains('Term 2', $block_element->getText());
+    $this->assertStringContainsString('Term 1', $block_element->getText());
+    $this->assertStringContainsString('Term 2', $block_element->getText());
 
     $term1 = Term::load(1);
     $term1->name->value = 'Renamed 1';
@@ -161,8 +161,8 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
       'rendered',
       'taxonomy_term_list',
     ]));
-    $this->assertContains('Renamed 1', $block_element->getText());
-    $this->assertContains('Renamed 2', $block_element->getText());
+    $this->assertStringContainsString('Renamed 1', $block_element->getText());
+    $this->assertStringContainsString('Renamed 2', $block_element->getText());
   }
 
   /**
