@@ -45,8 +45,11 @@ block.settings.hierarchical_taxonomy_menu:
       type: boolean
       label: 'Dynamic Base term'
     show_count:
-      type: boolean
-      label: 'Show count of referencing nodes'
+      type: integer
+      label: 'Show count of referencing entities'
+    referencing_field:
+      type: string
+      label: 'Referencing field'
     calculate_count_recursively:
       type: boolean
       label: 'Calculate count recursively'

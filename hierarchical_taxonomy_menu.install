@@ -23,3 +23,20 @@ function hierarchical_taxonomy_menu_update_8001() {
     $block->save();
   }
 }
+
+/**
+ * Convert show_count config values from bool to integer.
+ */
+function hierarchical_taxonomy_menu_update_8002() {
+  $config_factory = \Drupal::configFactory();
+
+  foreach ($config_factory->listAll('block.block.hierarchicaltaxonomymenu') as $block_config_name) {
+    $block = $config_factory->getEditable($block_config_name);
+
+    $settings = $block->get('settings');
+    $settings['show_count'] = (int) $settings['show_count'];
+
+    $block->set('settings', $settings);
+    $block->save();
+  }
+}

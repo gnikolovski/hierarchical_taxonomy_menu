@@ -6,6 +6,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -26,6 +27,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactoryPluginInterface {
+
+  const SHOW_COUNT_NONE = '0';
+  const SHOW_COUNT_NODE = '1';
+  const SHOW_COUNT_COMMERCE_PRODUCT = '2';
+
+  /**
+   * Entity mapping.
+   *
+   * @var string[]
+   */
+  protected $entitiesMap = [
+    self::SHOW_COUNT_NONE => '0',
+    self::SHOW_COUNT_NODE => 'node',
+    self::SHOW_COUNT_COMMERCE_PRODUCT => 'commerce_product',
+  ];
 
   /**
    * The entity field manager.
@@ -63,6 +79,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $database;
 
   /**
+   * The entity type bundle info.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
    * An array to hold the terms cache.
    *
    * @var array
@@ -88,6 +111,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    *   The current route match service.
    * @param \Drupal\Core\Database\Connection $database
    *   The the current primary database.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info.
    */
   public function __construct(
     array $configuration,
@@ -97,7 +122,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     EntityTypeManagerInterface $entity_type_manager,
     LanguageManagerInterface $language_manager,
     ResettableStackedRouteMatchInterface $current_route_match,
-    Connection $database
+    Connection $database,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityFieldManager = $entity_field_manager;
@@ -105,6 +131,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->languageManager = $language_manager;
     $this->currentRouteMatch = $current_route_match;
     $this->database = $database;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
   }
 
   /**
@@ -119,7 +146,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $container->get('entity_type.manager'),
       $container->get('language_manager'),
       $container->get('current_route_match'),
-      $container->get('database')
+      $container->get('database'),
+      $container->get('entity_type.bundle.info')
     );
   }
 
@@ -142,7 +170,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'max_age' => 0,
       'base_term' => '',
       'dynamic_base_term' => FALSE,
-      'show_count' => FALSE,
+      'show_count' => '0',
+      'referencing_field' => '_none',
       'calculate_count_recursively' => FALSE,
     ];
   }
@@ -328,20 +357,32 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     ];
 
     $form['advanced']['show_count'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Show count of referencing nodes'),
+      '#type' => 'radios',
+      '#title' => $this->t('Show count of referencing entities'),
+      '#options' => [
+        0 => $this->t('No'),
+        1 => $this->t('Show count of referencing nodes'),
+        2 => $this->t('Show count of referencing commerce products'),
+      ],
       '#default_value' => $this->configuration['show_count'],
+    ];
+
+    $form['advanced']['referencing_field'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Referencing field'),
+      '#options' => $this->getReferencingFields(),
+      '#default_value' => $this->configuration['referencing_field'],
+      '#states' => [
+        'visible' => [
+          ':input[name="settings[advanced][show_count]"]' => ['value' => '2'],
+        ],
+      ],
     ];
 
     $form['advanced']['calculate_count_recursively'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Calculate count recursively'),
       '#default_value' => $this->configuration['calculate_count_recursively'],
-      '#states' => [
-        'visible' => [
-          ':input[name="settings[advanced][show_count]"]' => ['checked' => TRUE],
-        ],
-      ],
     ];
 
     return $form;
@@ -395,6 +436,18 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * {@inheritdoc}
    */
+  public function blockValidate($form, FormStateInterface $form_state) {
+    if (
+      $form_state->getValue(['advanced', 'show_count']) == self::SHOW_COUNT_COMMERCE_PRODUCT &&
+      $form_state->getValue(['advanced', 'referencing_field']) == '_none'
+    ) {
+      $form_state->setErrorByName('advanced][referencing_field', $this->t('Please select referencing field'));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['vocabulary'] = $form_state->getValue(['basic', 'vocabulary']);
     $this->configuration['max_depth'] = $form_state->getValue(['basic', 'max_depth']);
@@ -411,6 +464,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->configuration['base_term'] = $form_state->getValue(['advanced', 'base_term']);
     $this->configuration['dynamic_base_term'] = $form_state->getValue(['advanced', 'dynamic_base_term']);
     $this->configuration['show_count'] = $form_state->getValue(['advanced', 'show_count']);
+    $this->configuration['referencing_field'] = $form_state->getValue(['advanced', 'referencing_field']);
     $this->configuration['calculate_count_recursively'] = $form_state->getValue(['advanced', 'calculate_count_recursively']);
   }
 
@@ -439,6 +493,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $max_age = $this->getMaxAge($this->configuration['max_age']);
     $interactive_parent = $this->configuration['collapsible'] ? $this->configuration['interactive_parent'] : 0;
     $show_count = $this->configuration['show_count'];
+    $referencing_field = $this->configuration['referencing_field'];
 
     $vocabulary_tree_array = [];
 
@@ -455,7 +510,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'width' => $image_width != '' ? $image_width : 16,
         'interactive_parent' => $interactive_parent,
         'show_count' => $show_count,
-        'nodes' => $show_count ? $this->getNodeIds($item->tid, $vocabulary, $this->configuration['calculate_count_recursively']) : [],
+        'entities' => !empty($show_count) ? $this->getEntityIds($this->entitiesMap[$show_count], $referencing_field, $item->tid, $vocabulary, $this->configuration['calculate_count_recursively']) : [],
       ];
     }
 
@@ -719,35 +774,75 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   }
 
   /**
-   * Gets all nodes referencing the given term.
+   * Gets all entities referencing the given term.
    */
-  private function getNodeIds($tid, $vocabulary, $calculate_count_recursively) {
+  private function getEntityIds($entity_type_id, $field_name, $tid, $vocabulary, $calculate_count_recursively) {
     if (!$calculate_count_recursively) {
-      return $this->getNodeIdsForTerm($tid);
+      return $this->getEntityIdsForTerm($entity_type_id, $field_name, $tid);
     }
     else {
-      $node_ids = $this->getNodeIdsForTerm($tid);
+      $entity_ids = $this->getEntityIdsForTerm($entity_type_id, $field_name, $tid);
 
       $child_tids = $this->entityTypeManager
         ->getStorage('taxonomy_term')
         ->loadTree($vocabulary, $tid);
 
       foreach ($child_tids as $child_tid) {
-        $node_ids = array_merge($node_ids, $this->getNodeIdsForTerm($child_tid->tid));
+        $entity_ids = array_merge($entity_ids, $this->getEntityIdsForTerm($entity_type_id, $field_name, $child_tid->tid));
       }
 
-      return $node_ids;
+      return $entity_ids;
     }
   }
 
   /**
-   * Gets nodes referencing the given term.
+   * Gets entities referencing the given term.
    */
-  private function getNodeIdsForTerm($tid) {
-    return $this->database->select('taxonomy_index', 'ta')
-      ->fields('ta', ['nid'])->distinct(TRUE)
-      ->condition('tid', $tid)
-      ->execute()->fetchCol();
+  private function getEntityIdsForTerm($entity_type_id, $field_name, $tid) {
+    if (empty($field_name)) {
+      return [];
+    }
+
+    if ($entity_type_id == 'node') {
+      return $this->database->select('taxonomy_index', 'ta')
+        ->fields('ta', ['nid'])->distinct(TRUE)
+        ->condition('tid', $tid)
+        ->execute()->fetchCol();
+    }
+    else {
+      return $this->database->select('commerce_product__' . $field_name, 'cp')
+        ->fields('cp', ['entity_id'])->distinct(TRUE)
+        ->condition($field_name . '_target_id', $tid)
+        ->execute()->fetchCol();
+    }
+  }
+
+  /**
+   * Gets taxonomy term fields from commerce product entity.
+   *
+   * @return array
+   *   An array of taxonomy term fields.
+   */
+  private function getReferencingFields() {
+    $referencing_fields = [];
+    $referencing_fields['_none'] = $this->t('- None -');
+
+    $bundles = $this->entityTypeBundleInfo
+      ->getBundleInfo('commerce_product');
+
+    foreach ($bundles as $bundle => $data) {
+      $fields = $this->entityFieldManager
+        ->getFieldDefinitions('commerce_product', $bundle);
+
+      /** @var \Drupal\Core\Field\FieldDefinitionInterface $field */
+      foreach ($fields as $field) {
+        if ($field->getType() == 'entity_reference' && $field->getSetting('target_type') == 'taxonomy_term') {
+          $referencing_fields[$field->getName()] = $field->getLabel();
+        }
+      }
+    }
+
+    return $referencing_fields;
   }
 
 }
