@@ -476,14 +476,14 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_config = explode('|', $vocabulary_config);
     $vocabulary = isset($vocabulary_config[0]) ? $vocabulary_config[0] : NULL;
     $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term'], $this->configuration['dynamic_base_term']);
+    $max_depth = $this->configuration['max_depth'];
     $vocabulary_tree = $this->entityTypeManager->getStorage('taxonomy_term')
-      ->loadTree($vocabulary, $base_term);
+      ->loadTree($vocabulary, $base_term, $max_depth + 1);
 
     if ($this->configuration['hide_block'] && !$vocabulary_tree) {
       return;
     }
 
-    $max_depth = $this->configuration['max_depth'];
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
     $use_image_style = $this->configuration['use_image_style'];
     $image_height = $this->configuration['image_height'];
@@ -524,9 +524,6 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'max-age' => $max_age,
         'tags' => [
           'taxonomy_term_list',
-        ],
-        'contexts' => [
-          'url.path',
         ],
       ],
       '#current_depth' => 0,
@@ -843,6 +840,21 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     }
 
     return $referencing_fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    $dynamic_base_term = $this->configuration['dynamic_base_term'];
+    if ($dynamic_base_term) {
+      $base_term = $this->getVocabularyBaseTerm($this->configuration['base_term'], $dynamic_base_term);
+      if (!$base_term) {
+        return parent::getCacheContexts();
+      }
+    }
+
+    return Cache::mergeContexts(parent::getCacheContexts(), ['url.path']);
   }
 
 }
