@@ -14,7 +14,6 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
 use Drupal\Core\Url;
-use Drupal\image\Entity\ImageStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -53,7 +52,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -438,8 +437,18 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   public function blockValidate($form, FormStateInterface $form_state) {
     if (
-      $form_state->getValue(['advanced', 'show_count']) == self::SHOW_COUNT_COMMERCE_PRODUCT &&
-      $form_state->getValue(['advanced', 'referencing_field']) == '_none'
+      $form_state->getValue(
+        [
+          'advanced',
+          'show_count',
+        ]
+      ) == self::SHOW_COUNT_COMMERCE_PRODUCT &&
+      $form_state->getValue(
+        [
+          'advanced',
+          'referencing_field',
+        ]
+      ) == '_none'
     ) {
       $form_state->setErrorByName('advanced][referencing_field', $this->t('Please select referencing field'));
     }
@@ -449,23 +458,108 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $this->configuration['vocabulary'] = $form_state->getValue(['basic', 'vocabulary']);
-    $this->configuration['max_depth'] = $form_state->getValue(['basic', 'max_depth']);
-    $this->configuration['dynamic_block_title'] = $form_state->getValue(['basic', 'dynamic_block_title']);
-    $this->configuration['collapsible'] = $form_state->getValue(['basic', 'collapsible']);
-    $this->configuration['stay_open'] = $form_state->getValue(['basic', 'stay_open']);
-    $this->configuration['interactive_parent'] = $form_state->getValue(['basic', 'interactive_parent']);
-    $this->configuration['hide_block'] = $form_state->getValue(['basic', 'hide_block']);
-    $this->configuration['use_image_style'] = $form_state->getValue(['image', 'use_image_style']);
-    $this->configuration['image_height'] = $form_state->getValue(['image', 'image_height']);
-    $this->configuration['image_width'] = $form_state->getValue(['image', 'image_width']);
-    $this->configuration['image_style'] = $form_state->getValue(['image', 'image_style']);
-    $this->configuration['max_age'] = $form_state->getValue(['advanced', 'max_age']);
-    $this->configuration['base_term'] = $form_state->getValue(['advanced', 'base_term']);
-    $this->configuration['dynamic_base_term'] = $form_state->getValue(['advanced', 'dynamic_base_term']);
-    $this->configuration['show_count'] = $form_state->getValue(['advanced', 'show_count']);
-    $this->configuration['referencing_field'] = $form_state->getValue(['advanced', 'referencing_field']);
-    $this->configuration['calculate_count_recursively'] = $form_state->getValue(['advanced', 'calculate_count_recursively']);
+    $this->configuration['vocabulary'] = $form_state->getValue(
+      [
+        'basic',
+        'vocabulary',
+      ]
+    );
+    $this->configuration['max_depth'] = $form_state->getValue(
+      [
+        'basic',
+        'max_depth',
+      ]
+    );
+    $this->configuration['dynamic_block_title'] = $form_state->getValue(
+      [
+        'basic',
+        'dynamic_block_title',
+      ]
+    );
+    $this->configuration['collapsible'] = $form_state->getValue(
+      [
+        'basic',
+        'collapsible',
+      ]
+    );
+    $this->configuration['stay_open'] = $form_state->getValue(
+      [
+        'basic',
+        'stay_open',
+      ]
+    );
+    $this->configuration['interactive_parent'] = $form_state->getValue(
+      [
+        'basic',
+        'interactive_parent',
+      ]
+    );
+    $this->configuration['hide_block'] = $form_state->getValue(
+      [
+        'basic',
+        'hide_block',
+      ]
+    );
+    $this->configuration['use_image_style'] = $form_state->getValue(
+      [
+        'image',
+        'use_image_style',
+      ]
+    );
+    $this->configuration['image_height'] = $form_state->getValue(
+      [
+        'image',
+        'image_height',
+      ]
+    );
+    $this->configuration['image_width'] = $form_state->getValue(
+      [
+        'image',
+        'image_width',
+      ]
+    );
+    $this->configuration['image_style'] = $form_state->getValue(
+      [
+        'image',
+        'image_style',
+      ]
+    );
+    $this->configuration['max_age'] = $form_state->getValue(
+      [
+        'advanced',
+        'max_age',
+      ]
+    );
+    $this->configuration['base_term'] = $form_state->getValue(
+      [
+        'advanced',
+        'base_term',
+      ]
+    );
+    $this->configuration['dynamic_base_term'] = $form_state->getValue(
+      [
+        'advanced',
+        'dynamic_base_term',
+      ]
+    );
+    $this->configuration['show_count'] = $form_state->getValue(
+      [
+        'advanced',
+        'show_count',
+      ]
+    );
+    $this->configuration['referencing_field'] = $form_state->getValue(
+      [
+        'advanced',
+        'referencing_field',
+      ]
+    );
+    $this->configuration['calculate_count_recursively'] = $form_state->getValue(
+      [
+        'advanced',
+        'calculate_count_recursively',
+      ]
+    );
   }
 
   /**
@@ -691,7 +785,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     if ($fid) {
       $file = $this->entityTypeManager->getStorage('file')->load($fid);
       if ($image_style) {
-        $style = ImageStyle::load($image_style);
+        $style = $this->entityTypeManager->getStorage('image_style')->load($image_style);
         if ($style) {
           $path = $style->buildUrl($file->getFileUri());
         }
@@ -713,7 +807,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   private function getImageStyleOptions() {
     $options = [];
-    $styles = ImageStyle::loadMultiple();
+    $styles = $this->entityTypeManager->getStorage('image_style')->loadMultiple();
 
     foreach ($styles as $style) {
       /** @var \Drupal\image\Entity\ImageStyle $style */
