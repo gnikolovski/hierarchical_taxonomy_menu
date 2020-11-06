@@ -575,7 +575,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       ->loadTree($vocabulary, $base_term, $max_depth + 1);
 
     if ($this->configuration['hide_block'] && !$vocabulary_tree) {
-      return;
+      return [];
     }
 
     $image_field = isset($vocabulary_config[1]) ? $vocabulary_config[1] : NULL;
