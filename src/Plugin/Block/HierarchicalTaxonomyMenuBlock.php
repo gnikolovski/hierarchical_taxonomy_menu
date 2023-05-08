@@ -390,7 +390,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Generates vocabulary select options.
    */
-  private function getVocabularyOptions() {
+  protected function getVocabularyOptions() {
     $options = [];
     $vocabularies = taxonomy_vocabulary_get_names();
 
@@ -639,7 +639,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Generates menu tree.
    */
-  private function generateTree($array, $parent = 0) {
+  protected function generateTree($array, $parent = 0) {
     $tree = [];
 
     foreach ($array as $item) {
@@ -655,7 +655,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Gets term name.
    */
-  private function getNameFromTid($tid) {
+  protected function getNameFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
 
     if (isset(self::$terms[$tid])) {
@@ -679,7 +679,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Gets term status.
    */
-  private function getStatusFromTid($tid) {
+  protected function getStatusFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
 
     if (isset(self::$terms[$tid])) {
@@ -703,7 +703,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Gets term url.
    */
-  private function getLinkFromTid($tid) {
+  protected function getLinkFromTid($tid) {
     $language = $this->languageManager->getCurrentLanguage()->getId();
 
     if (isset(self::$terms[$tid])) {
@@ -728,7 +728,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Gets current route.
    */
-  private function getCurrentRoute() {
+  protected function getCurrentRoute() {
     if ($term_id = $this->currentRouteMatch->getRawParameter('taxonomy_term')) {
       return $term_id;
     }
@@ -739,7 +739,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Gets image from term.
    */
-  private function getImageFromTid($tid, $image_field, $image_style) {
+  protected function getImageFromTid($tid, $image_field, $image_style) {
     if (!is_numeric($tid) || $image_field == '') {
       return '';
     }
@@ -805,7 +805,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Generates image style select options.
    */
-  private function getImageStyleOptions() {
+  protected function getImageStyleOptions() {
     $options = [];
     $styles = $this->entityTypeManager->getStorage('image_style')->loadMultiple();
 
@@ -821,7 +821,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Returns base taxonomy term ID.
    */
-  private function getVocabularyBaseTerm($base_term, $dynamic_base_term) {
+  protected function getVocabularyBaseTerm($base_term, $dynamic_base_term) {
     if ($dynamic_base_term) {
       if ($term_id = $this->currentRouteMatch->getRawParameter('taxonomy_term')) {
         return $term_id;
@@ -867,7 +867,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Gets all entities referencing the given term.
    */
-  private function getEntityIds($entity_type_id, $field_name, $tid, $vocabulary, $calculate_count_recursively) {
+  protected function getEntityIds($entity_type_id, $field_name, $tid, $vocabulary, $calculate_count_recursively) {
     if (!$calculate_count_recursively) {
       return $this->getEntityIdsForTerm($entity_type_id, $field_name, $tid);
     }
@@ -889,7 +889,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   /**
    * Gets entities referencing the given term.
    */
-  private function getEntityIdsForTerm($entity_type_id, $field_name, $tid) {
+  protected function getEntityIdsForTerm($entity_type_id, $field_name, $tid) {
     if (empty($field_name)) {
       return [];
     }
@@ -914,7 +914,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    * @return array
    *   An array of taxonomy term fields.
    */
-  private function getReferencingFields() {
+  protected function getReferencingFields() {
     $referencing_fields = [];
     $referencing_fields['_none'] = $this->t('- None -');
 
