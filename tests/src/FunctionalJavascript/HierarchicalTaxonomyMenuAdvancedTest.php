@@ -27,7 +27,7 @@ class HierarchicalTaxonomyMenuAdvancedTest extends WebDriverTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'block',
     'image',
     'hierarchical_taxonomy_menu',
@@ -63,7 +63,7 @@ class HierarchicalTaxonomyMenuAdvancedTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $admin_user = $this->drupalCreateUser([

@@ -23,7 +23,7 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'block',
     'image',
     'hierarchical_taxonomy_menu',
@@ -39,7 +39,7 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $language = ConfigurableLanguage::createFromLangcode('sr');
@@ -163,11 +163,11 @@ class HierarchicalTaxonomyMenuTranslationTest extends BrowserTestBase {
   public function testDynamicBlockTitle() {
     $this->drupalGet('taxonomy/term/1');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Parent');
+    $this->assertEquals($block_title_element->getText(), 'Parent');
 
     $this->drupalGet('sr/taxonomy/term/1');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Roditelj');
+    $this->assertEquals($block_title_element->getText(), 'Roditelj');
   }
 
 }

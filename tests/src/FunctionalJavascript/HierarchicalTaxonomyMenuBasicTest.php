@@ -22,7 +22,7 @@ class HierarchicalTaxonomyMenuBasicTest extends WebDriverTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'block',
     'image',
     'hierarchical_taxonomy_menu',
@@ -58,7 +58,7 @@ class HierarchicalTaxonomyMenuBasicTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $admin_user = $this->drupalCreateUser([
@@ -205,7 +205,7 @@ class HierarchicalTaxonomyMenuBasicTest extends WebDriverTestBase {
 
     $this->drupalGet('taxonomy/term/1');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Parent term 1');
+    $this->assertEquals($block_title_element->getText(), 'Parent term 1');
   }
 
   /**
@@ -222,7 +222,7 @@ class HierarchicalTaxonomyMenuBasicTest extends WebDriverTestBase {
 
     $this->drupalGet('taxonomy/term/1');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Hierarchical Taxonomy Menu');
+    $this->assertEquals($block_title_element->getText(), 'Hierarchical Taxonomy Menu');
   }
 
   /**

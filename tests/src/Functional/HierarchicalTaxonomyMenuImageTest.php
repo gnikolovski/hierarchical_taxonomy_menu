@@ -5,6 +5,7 @@ namespace Drupal\Tests\hierarchical_taxonomy_menu\Functional;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\file\Entity\File;
+use Drupal\file\FileInterface;
 use Drupal\Tests\block\Traits\BlockCreationTrait;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait;
@@ -26,7 +27,7 @@ class HierarchicalTaxonomyMenuImageTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'block',
     'image',
     'hierarchical_taxonomy_menu',
@@ -54,7 +55,7 @@ class HierarchicalTaxonomyMenuImageTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $vocabulary = $this->createVocabulary();
@@ -83,13 +84,13 @@ class HierarchicalTaxonomyMenuImageTest extends BrowserTestBase {
 
     $file1 = File::create([
       'uri' => $images[0]->uri,
-      'status' => FILE_STATUS_PERMANENT,
+      'status' => FileInterface::STATUS_PERMANENT,
     ]);
     $file1->save();
 
     $file2 = File::create([
       'uri' => $images[1]->uri,
-      'status' => FILE_STATUS_PERMANENT,
+      'status' => FileInterface::STATUS_PERMANENT,
     ]);
     $file2->save();
 

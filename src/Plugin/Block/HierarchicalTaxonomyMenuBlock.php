@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -85,6 +86,13 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
   protected $entityTypeBundleInfo;
 
   /**
+   * The file url generator.
+   *
+   * @var \Drupal\Core\File\FileUrlGeneratorInterface
+   */
+  protected $fileUrlGenerator;
+
+  /**
    * An array to hold the terms cache.
    *
    * @var array
@@ -112,6 +120,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    *   The the current primary database.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The entity type bundle info.
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+   *   The file url generator.
    */
   public function __construct(
     array $configuration,
@@ -122,7 +132,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     LanguageManagerInterface $language_manager,
     ResettableStackedRouteMatchInterface $current_route_match,
     Connection $database,
-    EntityTypeBundleInfoInterface $entity_type_bundle_info
+    EntityTypeBundleInfoInterface $entity_type_bundle_info,
+    FileUrlGeneratorInterface $file_url_generator
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityFieldManager = $entity_field_manager;
@@ -131,6 +142,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $this->currentRouteMatch = $current_route_match;
     $this->database = $database;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
+    $this->fileUrlGenerator = $file_url_generator;
   }
 
   /**
@@ -146,7 +158,8 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       $container->get('language_manager'),
       $container->get('current_route_match'),
       $container->get('database'),
-      $container->get('entity_type.bundle.info')
+      $container->get('entity_type.bundle.info'),
+      $container->get('file_url_generator')
     );
   }
 
@@ -392,7 +405,10 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
    */
   protected function getVocabularyOptions() {
     $options = [];
-    $vocabularies = taxonomy_vocabulary_get_names();
+    $vids = array_keys($this->entityTypeManager
+      ->getStorage('taxonomy_vocabulary')
+      ->loadMultiple());
+    $vocabularies = array_combine($vids, $vids);
 
     foreach ($vocabularies as $vocabulary) {
       $fields = $this->entityFieldManager->getFieldDefinitions('taxonomy_term', $vocabulary);
@@ -790,11 +806,11 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
           $path = $style->buildUrl($file->getFileUri());
         }
         else {
-          $path = Url::fromUri(file_create_url($file->getFileUri()));
+          $path = $this->fileUrlGenerator->generate($file->getFileUri());
         }
       }
       else {
-        $path = Url::fromUri(file_create_url($file->getFileUri()));
+        $path = $this->fileUrlGenerator->generate($file->getFileUri());
       }
       return $path;
     }

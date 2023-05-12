@@ -24,7 +24,7 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'block',
     'image',
     'hierarchical_taxonomy_menu',
@@ -52,7 +52,7 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $vocabulary = $this->createVocabulary();
@@ -98,12 +98,12 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
     $this->drupalGet('taxonomy/term/1');
     $this->assertCacheContext('url.path');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Term 1');
+    $this->assertEquals($block_title_element->getText(), 'Term 1');
 
     $this->drupalGet('taxonomy/term/2');
     $this->assertCacheContext('url.path');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Term 2');
+    $this->assertEquals($block_title_element->getText(), 'Term 2');
   }
 
   /**
@@ -118,12 +118,12 @@ class HierarchicalTaxonomyMenuCacheTest extends BrowserTestBase {
     $this->drupalGet('taxonomy/term/1');
     $this->assertCacheContext('url.path');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Term 1');
+    $this->assertEquals($block_title_element->getText(), 'Term 1');
 
     $this->drupalGet('taxonomy/term/2');
     $this->assertCacheContext('url.path');
     $block_title_element = $this->getSession()->getPage()->find('css', '#block-hierarchicaltaxonomymenu h2');
-    $this->assertEqual($block_title_element->getText(), 'Term 2');
+    $this->assertEquals($block_title_element->getText(), 'Term 2');
   }
 
   /**
