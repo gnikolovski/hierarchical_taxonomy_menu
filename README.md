@@ -11,7 +11,7 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 
-Hierarchical Taxonomy Menu is a Drupal 8/9 module for creating menus from
+Hierarchical Taxonomy Menu is a Drupal 8/9/10 module for creating menus from
 taxonomy terms. You can display an image next to a menu item if your terms have
 an image field, and there is also an option to make the menu collapsible. This
 module comes with a Twig template, so you can customize the HTML structure any

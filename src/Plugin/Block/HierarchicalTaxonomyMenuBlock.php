@@ -185,6 +185,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       'show_count' => '0',
       'referencing_field' => '_none',
       'calculate_count_recursively' => FALSE,
+      'exclude_empty_terms' => FALSE,
     ];
   }
 
@@ -395,6 +396,26 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
       '#type' => 'checkbox',
       '#title' => $this->t('Calculate count recursively'),
       '#default_value' => $this->configuration['calculate_count_recursively'],
+      '#states' => [
+        'visible' => [
+          [':input[name="settings[advanced][show_count]"]' => ['value' => '1']],
+          'or',
+          [':input[name="settings[advanced][show_count]"]' => ['value' => '2']],
+        ],
+      ],
+    ];
+
+    $form['advanced']['exclude_empty_terms'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide taxonomy terms if there are no referencing nodes/commerce products'),
+      '#default_value' => $this->configuration['exclude_empty_terms'],
+      '#states' => [
+        'visible' => [
+          [':input[name="settings[advanced][show_count]"]' => ['value' => '1']],
+          'or',
+          [':input[name="settings[advanced][show_count]"]' => ['value' => '2']],
+        ],
+      ],
     ];
 
     return $form;
@@ -576,6 +597,12 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'calculate_count_recursively',
       ]
     );
+    $this->configuration['exclude_empty_terms'] = $form_state->getValue(
+      [
+        'advanced',
+        'exclude_empty_terms',
+      ]
+    );
   }
 
   /**
@@ -608,6 +635,14 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
     $vocabulary_tree_array = [];
 
     foreach ($vocabulary_tree as $item) {
+      $entities = !empty($show_count) ? $this->getEntityIds($this->entitiesMap[$show_count], $referencing_field, $item->tid, $vocabulary, $this->configuration['calculate_count_recursively']) : [];
+
+      // Skip terms that have no referencing nodes/commerce products if the
+      // appropriate option is enabled.
+      if (!empty($this->configuration['exclude_empty_terms']) && empty($entities)) {
+        continue;
+      }
+
       $vocabulary_tree_array[] = [
         'tid' => $item->tid,
         'status' => $this->getStatusFromTid($item->tid),
@@ -620,7 +655,7 @@ class HierarchicalTaxonomyMenuBlock extends BlockBase implements ContainerFactor
         'width' => $image_width != '' ? $image_width : 16,
         'interactive_parent' => $interactive_parent,
         'show_count' => $show_count,
-        'entities' => !empty($show_count) ? $this->getEntityIds($this->entitiesMap[$show_count], $referencing_field, $item->tid, $vocabulary, $this->configuration['calculate_count_recursively']) : [],
+        'entities' => $entities,
       ];
     }
 

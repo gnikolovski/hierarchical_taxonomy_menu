@@ -53,3 +53,6 @@ block.settings.hierarchical_taxonomy_menu:
     calculate_count_recursively:
       type: boolean
       label: 'Calculate count recursively'
+    exclude_empty_terms:
+      type: boolean
+      label: 'Hide taxonomy terms if there are no referencing nodes/commerce products'
