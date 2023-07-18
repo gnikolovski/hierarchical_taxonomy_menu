@@ -126,6 +126,7 @@ class HierarchicalTaxonomyMenuTest extends BrowserTestBase {
     $this->assertSession()->fieldExists('settings[advanced][dynamic_base_term]');
     $this->assertSession()->fieldExists('settings[advanced][show_count]');
     $this->assertSession()->fieldExists('settings[advanced][calculate_count_recursively]');
+    $this->assertSession()->fieldExists('settings[advanced][exclude_empty_terms]');
   }
 
 }
